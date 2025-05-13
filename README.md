@@ -7,13 +7,15 @@
 python3 -m venv .venv
 
 가상환경 활성화
-.venv/scripts/activate.bat
+.venv/Scripts/activate.bat
 
 패키지 설치
 pip install "fastapi[standard]"
 pip install sqlmodel
 pip install pymysql
 pip install redis
+pip install passlib[bcrypt]
+pip install PyJWT
 ```
 
 ### .env file 
@@ -24,6 +26,8 @@ pip install redis
     DB_NAME=your_database
     REDIS_HOST=127.0.0.1
     REDIS_PORT=6379
+    GOOGLE_SMTP_EMAIL=your_email
+    GOOGLE_SMTP_PASSWORD=your_smtp_password
 
 ### Redis (Ubuntu,Linux)
     sudo apt install redis redis-tools -y
@@ -50,11 +54,18 @@ project-root/
 │   │   ├── session.py
 │   │   └── init_db.py
 │   ├── handlers/
-│   │   └── example.py
+│   │   ├── email_handler.py
+│   │   └── user_handler.py
 │   ├── models/
-│   │   └── user.py           
+│   │   └── user_model.py           
 │   ├── schemas/
-│   │   └── user.py          
+│   │   ├── common_schema.py
+│   │   └── user_schema.py          
 │   ├── services/ 
-│   └── utils/               
+│   │   ├── email_service.py
+│   │   └── user_service.py   
+│   └── utils/
+│       ├── jwt_util.py
+│       └── redis_util.py 
+
 ```
