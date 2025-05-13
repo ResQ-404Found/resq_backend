@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel
 from app.db.session import db_engine
-from app.models.user import User
+from app.models.user_model import User
 
 async def create_db_and_tables():
     SQLModel.metadata.drop_all(db_engine)
