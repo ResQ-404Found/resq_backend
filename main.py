@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.db.init_db import create_db_and_tables
 from app.handlers import user_handler, email_handler
 from app.core.redis import get_redis
+from redis.asyncio import Redis
 
 app = FastAPI()
 

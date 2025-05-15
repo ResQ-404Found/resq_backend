@@ -12,7 +12,6 @@ router = APIRouter()
 @router.post("/users/signup")
 async def create_user(
     req:UserCreate, 
-    db: Session = Depends(get_db_session),
     redis: Redis = Depends(get_redis),
     user_service:UserService=Depends()
 ) -> UserCreateResponse:

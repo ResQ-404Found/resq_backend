@@ -12,7 +12,6 @@ router = APIRouter()
 async def request_verification_email(
     email: str,
     provider: str,
-    db: Session=Depends(get_db_session),
     email_service: EmailService = Depends()
 ) -> ApiResponse[None]:
     await email_service.request_verification(email, provider)
@@ -21,8 +20,6 @@ async def request_verification_email(
 @router.get("/verify-email")
 async def verify_email(
     token: str,
-    db: Session=Depends(get_db_session),
-    redis: Redis = Depends(get_redis),
     email_service: EmailService = Depends()
 ) -> ApiResponse[None]:
     await email_service.verify_email_token(token)
