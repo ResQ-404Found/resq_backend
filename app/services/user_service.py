@@ -1,7 +1,7 @@
-from sqlmodel import Session
+from sqlmodel import Session, select
 from fastapi import HTTPException, Depends
 from app.models.user_model import User
-from app.schemas.user_schema import UserCreate, TokenPair
+from app.schemas.user_schema import UserCreate, TokenPair, UserLogin
 from app.utils.jwt_util import JWTUtil
 from passlib.context import CryptContext
 from app.db.session import get_db_session
@@ -19,6 +19,20 @@ class UserService:
         self._exception_if_duplicate("username", req.username)
         user = self._save(req)
         return JWTUtil.generate_token_pair(user.id)
+    
+    def login(self, req: UserLogin) -> TokenPair:
+        user = self.db.exec(select(User).where(User.login_id == req.login_id)).first()
+        if not user:
+            raise HTTPException(400, detail="존재하지 않는 사용자입니다.")
+        if not self._verify_password(req.password, user.password):
+            raise HTTPException(400, detail="비밀번호가 틀립니다.")
+        return JWTUtil.generate_token_pair(user.id)
+    
+    def get_user_by_id(self, user_id: int) -> User:
+        user = self.db.exec(select(User).where(User.id == user_id)).first()
+        if not user:
+            raise HTTPException(404, detail="사용자를 찾을 수 없습니다.")
+        return user
 
     # 비밀번호 해시화
     def _hash_password(self, pwd: str) -> str:
