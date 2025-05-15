@@ -12,3 +12,9 @@ class UserCreate(BaseModel):
     username: str
 
 UserCreateResponse = ApiResponse[TokenPair]
+
+class UserLogin(BaseModel):
+    login_id: str
+    password: str 
+
+UserLoginResponse = ApiResponse[TokenPair]
