@@ -16,6 +16,7 @@ pip install pymysql
 pip install redis
 pip install passlib[bcrypt]
 pip install PyJWT
+pip install requests
 ```
 
 ### .env file 
@@ -28,6 +29,7 @@ pip install PyJWT
     REDIS_PORT=6379
     GOOGLE_SMTP_EMAIL=your_email
     GOOGLE_SMTP_PASSWORD=your_smtp_password
+    SHELTER_API_SERVICE_KEY = 대피소 API 키
 
 ### Redis (Ubuntu,Linux)
     sudo apt install redis redis-tools -y
@@ -55,15 +57,19 @@ project-root/
 │   │   └── init_db.py
 │   ├── handlers/
 │   │   ├── email_handler.py
-│   │   └── user_handler.py
+│   │   ├── user_handler.py
+│   │   └── shelter_handler.py
 │   ├── models/
-│   │   └── user_model.py           
+│   │   ├── user_model.py
+│   │   └── shelter_models.py           
 │   ├── schemas/
 │   │   ├── common_schema.py
-│   │   └── user_schema.py          
+│   │   ├── user_schema.py
+│   │   └── shelter_schema.py          
 │   ├── services/ 
 │   │   ├── email_service.py
-│   │   └── user_service.py   
+│   │   ├── user_service.py
+│   │   └── shelter_service.py   
 │   └── utils/
 │       ├── jwt_util.py
 │       └── redis_util.py 
