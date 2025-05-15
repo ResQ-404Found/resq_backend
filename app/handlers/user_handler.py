@@ -1,13 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
 from sqlmodel import Session
 from app.db.session import get_db_session
-from app.schemas.user_schema import UserCreate, UserCreateResponse
+from app.models.user_model import User
+from app.schemas.user_schema import UserCreate, UserCreateResponse, UserLogin, UserLoginResponse
 from app.services.user_service import UserService
 from app.core.redis import get_redis
 from redis.asyncio import Redis
+from app.utils.jwt_util import JWTUtil
 from app.utils.redis_util import is_email_verified, clear_email_verified
 
 router = APIRouter()
+
+bearer_scheme = HTTPBearer()
+
+async def get_current_user(
+        credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+        user_service: UserService = Depends()
+) -> User:
+    token = credentials.credentials
+    payload = JWTUtil.decode_token(token)
+    user_id = payload.get("sub")
+    user = user_service.get_user_by_id(user_id)
+    return user
 
 @router.post("/users/signup")
 async def create_user(
@@ -21,3 +36,19 @@ async def create_user(
     
     await clear_email_verified(redis, req.email)
     return UserCreateResponse(message="회원가입 성공", data=token_pair)
+
+@router.post("/users/signin")
+def siginin_user(
+    req: UserLogin,
+    user_service: UserService = Depends(),
+) -> UserLoginResponse:
+    token_pair = user_service.login(req)
+    return UserLoginResponse(message="로그인 성공", data=token_pair)
+
+@router.post("/refresh")
+def refresh_token(authorization: str = Header(...)):
+    refresh_token = authorization.replace("Bearer ", "")
+    user_id = JWTUtil.decode_refresh_token(refresh_token)
+    return {
+        "access_token": JWTUtil.generate_access_token(user_id)
+    }
