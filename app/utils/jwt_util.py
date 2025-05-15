@@ -11,7 +11,7 @@ class JWTUtil:
     @staticmethod
     def generate_access_token(user_id: int) -> str:
         payload = {
-            "sub": user_id,
+            "sub": str(user_id),
             "exp": datetime.utcnow() + timedelta(minutes=30)
         }
         return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
@@ -19,7 +19,7 @@ class JWTUtil:
     @staticmethod
     def generate_refresh_token(user_id: int) -> str:
         payload = {
-            "sub": user_id,
+            "sub": str(user_id),
             "exp": datetime.utcnow() + timedelta(days=7)
         }
         return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
@@ -31,19 +31,13 @@ class JWTUtil:
         return TokenPair(access_token=access_token, refresh_token=refresh_token)
     
     @staticmethod
-    def decode_token(token: str):
+    def decode_token(token: str) -> dict:
         try:
             return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="토큰이 만료되었습니다.")
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
-        except (InvalidTokenError, DecodeError) as e:
-            print("디코딩 실패: ", e)
-            raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
-        except Exception as e:
-            traceback.print_exc()
-            raise
     
     @staticmethod
     def generate_email_verification_token(email: str) -> str:
