@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlmodel import Session, select
 from fastapi import HTTPException, Depends
 from app.models.user_model import User, UserStatus
-from app.schemas.user_schema import UserCreate, TokenPair, UserLogin, UserUpdate
+from app.schemas.user_schema import UserCreate, TokenPair, UserLogin, UserRead, UserUpdate
 from app.utils.jwt_util import JWTUtil
 from passlib.context import CryptContext
 from app.db.session import get_db_session
@@ -65,6 +65,14 @@ class UserService:
         self.db.commit()
         self.db.refresh(user)
 
+    def get_info(self, user_id:int) -> UserRead:
+        user = self.get_user_by_id(user_id)
+        return UserRead(
+            email=user.email,
+            username=user.username,
+            profile_imageURL=user.profile_imageURL,
+            role=user.role
+        )
 
     # 비밀번호 해시화
     def _hash_password(self, pwd: str) -> str:
