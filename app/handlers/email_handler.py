@@ -8,19 +8,19 @@ from app.services.email_service import EmailService
 
 router = APIRouter()
 
-@router.post("/request-verification-email")
+@router.post("/request-verification-email", response_model_exclude_none=True)
 async def request_verification_email(
     email: str,
     provider: str,
     email_service: EmailService = Depends()
 ) -> ApiResponse[None]:
     await email_service.request_verification(email, provider)
-    return ApiResponse(message="인증 메일 발송 완료", data=None)
+    return ApiResponse(message="인증 메일 발송 완료")
 
-@router.get("/verify-email")
+@router.get("/verify-email", response_model_exclude_none=True)
 async def verify_email(
     token: str,
     email_service: EmailService = Depends()
 ) -> ApiResponse[None]:
     await email_service.verify_email_token(token)
-    return ApiResponse(message="이메일 인증 완료", data=None)
+    return ApiResponse(message="이메일 인증 완료")
