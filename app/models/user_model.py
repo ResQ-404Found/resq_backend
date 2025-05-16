@@ -13,10 +13,10 @@ class UserStatus(str, Enum):
 
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    login_id: str = Field(nullable=False, unique=True)
-    email: str = Field(nullable=False, unique=True)
+    login_id: str = Field(nullable=False)
+    email: str = Field(nullable=False)
     password: str = Field(nullable=False)
-    username: str = Field(nullable=False, unique=True)
+    username: str = Field(nullable=False)
     profile_imageURL: Optional[str] = Field(default=None)
     role: UserRole = Field(default=UserRole.USER)
     status: UserStatus = Field(default=UserStatus.ACTIVE)
