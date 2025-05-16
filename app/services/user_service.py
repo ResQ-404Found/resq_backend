@@ -1,7 +1,8 @@
+from datetime import datetime
 from sqlmodel import Session, select
 from fastapi import HTTPException, Depends
 from app.models.user_model import User
-from app.schemas.user_schema import UserCreate, TokenPair, UserLogin
+from app.schemas.user_schema import UserCreate, TokenPair, UserLogin, UserUpdate
 from app.utils.jwt_util import JWTUtil
 from passlib.context import CryptContext
 from app.db.session import get_db_session
@@ -33,6 +34,28 @@ class UserService:
         if not user:
             raise HTTPException(404, detail="사용자를 찾을 수 없습니다.")
         return user
+    
+    def update(self, user_id:int, req: UserUpdate):
+        user = self.get_user_by_id(user_id)
+        # username 변경
+        if req.username and req.username != user.username:
+            self._exception_if_duplicate("username", req.username)
+            user.username = req.username
+        
+        # 프로필 이미지 변경
+        if req.profile_imageURL:
+            user.profile_imageURL = req.profile_imageURL
+        
+        # 비밀번호 변경
+        if req.password:
+            if not self._verify_password(req.password.old_password, user.password):
+                raise HTTPException(400, detail="현재 비밀번호가 틀립니다.")
+            user.password = self._hash_password(req.password.new_password)
+
+        user.updated_at = datetime.utcnow()
+        self.db.commit()
+        self.db.refresh(user)
+
 
     # 비밀번호 해시화
     def _hash_password(self, pwd: str) -> str:
