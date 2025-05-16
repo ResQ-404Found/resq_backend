@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlmodel import Session, select
 from fastapi import HTTPException, Depends
-from app.models.user_model import User
+from app.models.user_model import User, UserStatus
 from app.schemas.user_schema import UserCreate, TokenPair, UserLogin, UserUpdate
 from app.utils.jwt_util import JWTUtil
 from passlib.context import CryptContext
@@ -23,14 +23,14 @@ class UserService:
     
     def login(self, req: UserLogin) -> TokenPair:
         user = self.db.exec(select(User).where(User.login_id == req.login_id)).first()
-        if not user:
+        if not user or user.status == UserStatus.INACTIVE:
             raise HTTPException(400, detail="존재하지 않는 사용자입니다.")
         if not self._verify_password(req.password, user.password):
             raise HTTPException(400, detail="비밀번호가 틀립니다.")
         return JWTUtil.generate_token_pair(user.id)
     
     def get_user_by_id(self, user_id: int) -> User:
-        user = self.db.exec(select(User).where(User.id == user_id)).first()
+        user = self.db.exec(select(User).where(User.id == user_id, User.status == UserStatus.ACTIVE)).first()
         if not user:
             raise HTTPException(404, detail="사용자를 찾을 수 없습니다.")
         return user
@@ -82,5 +82,5 @@ class UserService:
     def _exception_if_duplicate(self, field: str, value: str):
         if field not in {"login_id", "email", "username"}:
             raise ValueError("중복 검사할 수 없는 필드입니다.")
-        if (self.db.query(User).filter(getattr(User, field) == value).first() is not None):
+        if self.db.exec(select(User).where(getattr(User, field) == value, User.status == UserStatus.ACTIVE)).first():
             raise HTTPException(400, detail=f"{field}가 이미 존재합니다.")
