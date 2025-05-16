@@ -3,7 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2Pas
 from sqlmodel import Session
 from app.db.session import get_db_session
 from app.models.user_model import User
-from app.schemas.user_schema import UserCreate, UserCreateResponse, UserLogin, UserLoginResponse, UserUpdate, UserUpdateResponse
+from app.schemas.user_schema import UserCreate, UserCreateResponse, UserDeleteResponse, UserLogin, UserLoginResponse, UserUpdate, UserUpdateResponse
 from app.services.user_service import UserService
 from app.core.redis import get_redis
 from redis.asyncio import Redis
@@ -61,4 +61,12 @@ def update_user(
 ) -> UserUpdateResponse:
     user_service.update(user.id, req)
     return UserUpdateResponse(message="회원정보 수정 성공")
+
+@router.patch("/users/delete", response_model_exclude_none=True)
+def delete_user(
+    user: User=Depends(get_current_user), 
+    user_service: UserService = Depends()
+) -> UserDeleteResponse:
+    user_service.deactivate(user.id)
+    return UserDeleteResponse(message="회원탈퇴 성공")
 

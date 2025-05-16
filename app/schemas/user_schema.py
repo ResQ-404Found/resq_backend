@@ -31,3 +31,5 @@ class UserUpdate(BaseModel):
     password: Optional[PasswordUpdatePair] = None
 
 UserUpdateResponse = ApiResponse[None]
+
+UserDeleteResponse = ApiResponse[None]

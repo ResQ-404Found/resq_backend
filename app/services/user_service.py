@@ -56,6 +56,15 @@ class UserService:
         self.db.commit()
         self.db.refresh(user)
 
+    def deactivate(self, user_id:int):
+        user = self.get_user_by_id(user_id)
+        if user.status == UserStatus.INACTIVE:
+            raise HTTPException(400, detail="이미 탈퇴한 사용자입니다.")
+        user.status = UserStatus.INACTIVE
+        user.updated_at = datetime.utcnow()
+        self.db.commit()
+        self.db.refresh(user)
+
 
     # 비밀번호 해시화
     def _hash_password(self, pwd: str) -> str:
