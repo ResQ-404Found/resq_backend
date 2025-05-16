@@ -3,7 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2Pas
 from sqlmodel import Session
 from app.db.session import get_db_session
 from app.models.user_model import User
-from app.schemas.user_schema import UserCreate, UserCreateResponse, UserLogin, UserLoginResponse
+from app.schemas.user_schema import UserCreate, UserCreateResponse, UserDeleteResponse, UserLogin, UserLoginResponse, UserReadResponse, UserUpdate, UserUpdateResponse
 from app.services.user_service import UserService
 from app.core.redis import get_redis
 from redis.asyncio import Redis
@@ -52,3 +52,28 @@ def refresh_token(authorization: str = Header(...)):
     return {
         "access_token": JWTUtil.generate_access_token(user_id)
     }
+
+@router.patch("/users/update", response_model_exclude_none=True)
+def update_user(
+    req: UserUpdate,
+    user: User=Depends(get_current_user),
+    user_service: UserService = Depends(),
+) -> UserUpdateResponse:
+    user_service.update(user.id, req)
+    return UserUpdateResponse(message="회원정보 수정 성공")
+
+@router.patch("/users/delete", response_model_exclude_none=True)
+def delete_user(
+    user: User=Depends(get_current_user), 
+    user_service: UserService = Depends()
+) -> UserDeleteResponse:
+    user_service.deactivate(user.id)
+    return UserDeleteResponse(message="회원탈퇴 성공")
+
+@router.get("/users/me")
+def get_user_info(
+    user: User=Depends(get_current_user),
+    user_service: UserService = Depends(),
+) -> UserReadResponse:
+    user_data = user_service.get_info(user.id)
+    return UserReadResponse(message="회원정보 조회 성공", data=user_data)

@@ -1,4 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from typing import Optional
+from pydantic import BaseModel, EmailStr, HttpUrl
+from app.models.user_model import User, UserRole
 from app.schemas.common_schema import ApiResponse
 
 class TokenPair(BaseModel):
@@ -18,3 +20,25 @@ class UserLogin(BaseModel):
     password: str 
 
 UserLoginResponse = ApiResponse[TokenPair]
+
+class PasswordUpdatePair(BaseModel):
+    old_password: str
+    new_password: str
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    profile_imageURL: Optional[HttpUrl] = None
+    password: Optional[PasswordUpdatePair] = None
+
+UserUpdateResponse = ApiResponse[None]
+
+UserDeleteResponse = ApiResponse[None]
+
+class UserRead(BaseModel):
+    email: EmailStr
+    username: str
+    profile_imageURL: Optional[HttpUrl] = None
+    role: UserRole
+
+UserReadResponse = ApiResponse[UserRead]
+

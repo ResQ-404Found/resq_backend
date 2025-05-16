@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Depends
-from sqlmodel import Session
-from app.models.user_model import User
+from sqlmodel import Session, select
+from app.models.user_model import User, UserStatus
 from app.utils.jwt_util import JWTUtil
 from app.db.session import get_db_session
 from email.mime.text import MIMEText
@@ -32,7 +32,7 @@ class EmailService:
         self.redis = redis
     
     async def request_verification(self, email: str, provider: str):
-        if self.db.query(User).filter(User.email == email).first():
+        if self.db.exec(select(User).where(User.email == email, User.status == UserStatus.ACTIVE)).first():
             raise HTTPException(status_code=400, detail="이미 가입된 이메일 입니다.")
         
         token = JWTUtil.generate_email_verification_token(email)
