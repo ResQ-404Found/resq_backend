@@ -36,6 +36,14 @@ class EmailService:
         url = f"http://localhost:3000/verify-email?token={token}"
         self._send_email_for_verify(email, url)
 
+    async def request_password_reset(self, email: str):
+        user = self.db.exec(select(User).where(User.email == email)).first()
+        if not user:
+            raise HTTPException(status_code=400, detail="가입되지 않은 이메일 입니다.")
+        
+        token = JWTUtil.generate_password_reset_token(email)
+        url = f"http://localhost:3000/reset-password?token={token}"
+        self._send_email_for_reset(email, url)
 
     async def verify_email_token(self, token: str):
         try:
@@ -57,5 +65,17 @@ class EmailService:
             """
             self.smtp_client.send_email(to_email, subject, body)
     
+    def _send_email_for_reset(self, to_email: str, reset_url: str):
+        subject = "ResQ 비밀번호 재설정"
+        body = f"""
+        <html>
+            <body>
+                <h1>비밀번호 재설정</h1>
+                <p>아래 링크를 클릭하여 비밀번호를 재설정하세요.</p>
+                <a href="{reset_url}">비밀번호 재설정하기</a>
+            </body>
+        </html>
+        """
+        self.smtp_client.send_email(to_email, subject, body)
 
 

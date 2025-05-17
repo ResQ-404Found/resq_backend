@@ -73,6 +73,21 @@ class UserService:
             profile_imageURL=user.profile_imageURL,
             role=user.role
         )
+    
+    # 비로그인 상태에서 이메일 인증 후 재설정 요청
+    async def reset_password(self, token: str, new_password: str):
+        try:
+            email = JWTUtil.decode_password_reset_token(token)
+        except Exception:
+            raise HTTPException(status_code=400, detail="유효하지 않거나 만료된 토큰입니다.")
+        user = self.db.exec(select(User).where(User.email == email, User.status == UserStatus.ACTIVE)).first()
+        if not user:
+            raise HTTPException(status_code=400, detail="가입되지 않은 이메일입니다.")
+        
+        user.password = self._hash_password(new_password)
+        user.updated_at = datetime.utcnow()
+        self.db.commit()
+        self.db.refresh(user)
 
     # 비밀번호 해시화
     def _hash_password(self, pwd: str) -> str:
