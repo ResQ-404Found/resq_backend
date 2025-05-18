@@ -73,5 +73,10 @@ project-root/
 │   └── utils/
 │       ├── jwt_util.py
 │       └── redis_util.py 
+```
 
+###개발 버전 관리
+```
+- v1.0 Project 초기 세팅 및 example code
+- v1.1 로그인/회원가입 기능, 이메일 인증 기능, 대피소 관련 핸들러 추가
 ```
