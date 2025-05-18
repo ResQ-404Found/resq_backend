@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from app.db.init_db import create_db_and_tables
 from app.handlers import user_handler, email_handler
@@ -19,7 +20,6 @@ app.include_router(email_handler.router, prefix="/api", tags=["email"])
 @app.on_event("startup")
 async def on_startup():
     redis: Redis = await get_redis()
-    await redis.flushdb()
     await create_db_and_tables()
     await run_in_threadpool(fetch_and_store_shelters)
 
