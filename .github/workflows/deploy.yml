@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "."
           target: "~/app"
-          rm: true  # 이전 내용 삭제 후 복사 (rm 옵션 추가)
+          rm: false  # 이전 내용 삭제 후 복사 (rm 옵션 추가)
 
       - name: SSH into EC2 and deploy
         uses: appleboy/ssh-action@master
