@@ -31,5 +31,5 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ~/app
-            docker-compose down || docker compose down
-            docker-compose up -d --build || docker compose up -d --build
+            docker-compose down
+            docker-compose up -d --build
