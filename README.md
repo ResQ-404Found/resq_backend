@@ -47,7 +47,15 @@ project-root/
 ├── README.md           
 ├── .env
 ├── .gitignore 
-├── main.py              
+├── main.py 
+├── requirements.txt
+├── Dockerfile 
+├── docker-compose.yml 
+├── .dockerignore
+│
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
 │
 ├── app/
 │   ├── core/
@@ -79,4 +87,5 @@ project-root/
 ```
 - v1.0 Project 초기 세팅 및 example code
 - v1.1 로그인/회원가입 기능, 이메일 인증 기능, 대피소 관련 핸들러 추가
+- v1.2 배포 환경 설정 및 1차 배포
 ```
