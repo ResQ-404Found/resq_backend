@@ -17,6 +17,7 @@ pip install redis
 pip install passlib[bcrypt]
 pip install PyJWT
 pip install requests
+pip install pandas
 ```
 
 ### .env file 
@@ -57,6 +58,9 @@ project-root/
 │   └── workflows/
 │       └── deploy.yml
 │
+├── data/
+│   └── RegionCategory.csv
+│
 ├── app/
 │   ├── core/
 │   │   └── redis.py
@@ -68,6 +72,7 @@ project-root/
 │   │   ├── user_handler.py
 │   │   └── shelter_handler.py
 │   ├── models/
+│   │   ├── region_model.py
 │   │   ├── user_model.py
 │   │   └── shelter_models.py           
 │   ├── schemas/
@@ -75,6 +80,7 @@ project-root/
 │   │   ├── user_schema.py
 │   │   └── shelter_schema.py          
 │   ├── services/ 
+│   │   ├── region_service.py
 │   │   ├── email_service.py
 │   │   ├── user_service.py
 │   │   └── shelter_service.py   
