@@ -5,6 +5,7 @@ from app.handlers import user_handler, email_handler
 from app.core.redis import get_redis
 from redis.asyncio import Redis
 from app.handlers import shelter_handler
+from app.services.region_service import load_region_csv
 from app.services.shelter_service import fetch_and_store_shelters
 from starlette.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +22,7 @@ async def on_startup():
     redis: Redis = await get_redis()
     await create_db_and_tables()
     await run_in_threadpool(fetch_and_store_shelters)
+    await run_in_threadpool(load_region_csv)
 
 app.add_middleware(
     CORSMiddleware,
