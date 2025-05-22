@@ -31,6 +31,7 @@ pip install pandas
     GOOGLE_SMTP_EMAIL=your_email
     GOOGLE_SMTP_PASSWORD=your_smtp_password
     SHELTER_API_SERVICE_KEY = 대피소 API 키
+    DISASTER_API_SERVICE_KEY = 재난 API 키
 
 ### Redis (Ubuntu,Linux)
     sudo apt install redis redis-tools -y
@@ -70,10 +71,12 @@ project-root/
 │   ├── handlers/
 │   │   ├── email_handler.py
 │   │   ├── user_handler.py
+│   │   ├── disaster_handler.py
 │   │   └── shelter_handler.py
 │   ├── models/
 │   │   ├── region_model.py
 │   │   ├── user_model.py
+│   │   ├── disaster_model.py
 │   │   └── shelter_models.py           
 │   ├── schemas/
 │   │   ├── common_schema.py
@@ -83,6 +86,7 @@ project-root/
 │   │   ├── region_service.py
 │   │   ├── email_service.py
 │   │   ├── user_service.py
+│   │   ├── disaster_service.py
 │   │   └── shelter_service.py   
 │   └── utils/
 │       ├── jwt_util.py
