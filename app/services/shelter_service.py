@@ -5,6 +5,9 @@ from sqlmodel import Session
 import requests
 from dotenv import load_dotenv
 import os
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 load_dotenv(dotenv_path=".env")
 
@@ -20,9 +23,9 @@ def fetch_and_store_shelters():
 
     try:
         response = requests.get(API_URL, params=params)
-        print("API call URL:", response.url)
-        print("Status code:", response.status_code)
-        print("First part of response text:", response.text[:300])
+    #     print("API call URL:", response.url)
+    #     print("Status code:", response.status_code)
+    #     print("First part of response text:", response.text[:300])
     except Exception as e:
         print("API request failed:", e)
         return
@@ -35,7 +38,7 @@ def fetch_and_store_shelters():
         return
 
     items = data.get("body", [])
-    print("Number of shelters received:", len(items))
+    # print("Number of shelters received:", len(items))
 
     if not items:
         print("No shelter data found.")
@@ -57,4 +60,4 @@ def fetch_and_store_shelters():
             except Exception as e:
                 print("Error adding shelter:", item.get("REARE_NM"), "->", e)
         session.commit()
-        print("Shelter data insert completed")
+        # print("Shelter data insert completed")
