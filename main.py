@@ -26,11 +26,3 @@ async def on_startup():
     await run_in_threadpool(fetch_and_store_shelters)
     await run_in_threadpool(fetch_and_store_disasters)
     await run_in_threadpool(load_region_csv)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
