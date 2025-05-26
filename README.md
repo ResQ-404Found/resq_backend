@@ -18,6 +18,7 @@ pip install passlib[bcrypt]
 pip install PyJWT
 pip install requests
 pip install pandas
+pip install boto3
 ```
 
 ### .env file 
@@ -32,6 +33,11 @@ pip install pandas
     GOOGLE_SMTP_PASSWORD=your_smtp_password
     SHELTER_API_SERVICE_KEY = 대피소 API 키
     DISASTER_API_SERVICE_KEY = 재난 API 키
+    AWS_ACCESS_KEY_ID=your_access_key
+    AWS_SECRET_ACCESS_KEY=your_secret_key
+    AWS_REGION=ap-northeast-2
+    AWS_S3_BUCKET_NAME=your_bucket_name
+
 
 ### Redis (Ubuntu,Linux)
     sudo apt install redis redis-tools -y
@@ -89,6 +95,7 @@ project-root/
 │   │   ├── disaster_service.py
 │   │   └── shelter_service.py   
 │   └── utils/
+│       ├── s3_util.py
 │       ├── jwt_util.py
 │       └── redis_util.py 
 ```
