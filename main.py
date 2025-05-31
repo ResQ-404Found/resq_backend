@@ -23,6 +23,6 @@ app.include_router(upload_test.router, prefix="/api", tags=["upload"])
 async def on_startup():
     redis: Redis = await get_redis()
     await create_db_and_tables()
+    await run_in_threadpool(load_region_csv)
     await run_in_threadpool(fetch_and_store_shelters)
     await run_in_threadpool(fetch_and_store_disasters)
-    await run_in_threadpool(load_region_csv)
