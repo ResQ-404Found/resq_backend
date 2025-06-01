@@ -6,6 +6,7 @@ from app.models.disaster_model import DisasterInfo
 from datetime import datetime
 from dotenv import load_dotenv
 import urllib3
+from app.services.disaster_region_service import parse_region_tuples, save_disaster_regions
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -37,6 +38,15 @@ def fetch_and_store_disasters():
 
     with Session(db_engine) as session:
         for item in items:
+            # 지역명 파싱
+            try:
+                region_str = item.get("RCPTN_RGN_NM", "")
+                region_name = region_str.strip()
+                region_tuples = parse_region_tuples(region_str, session)
+            except Exception as e:
+                print("Error parsing region:", e)
+                continue
+            # 재난 정보 저장
             try:
                 disaster = DisasterInfo(
                     disaster_type=item.get("DST_SE_NM", "기타"),
@@ -45,13 +55,20 @@ def fetch_and_store_disasters():
                     active=True,
                     start_time=datetime.strptime(item.get("CRT_DT"), "%Y/%m/%d %H:%M:%S"),
                     updated_at=datetime.utcnow(),
+                    region_name=region_name
                 )
                 session.add(disaster)
+                session.flush()
             except Exception as e:
-                print("Error saving disaster:", e)
+                print("Error saving DisasterInfo:", e)
+                continue
+            # DisasterRegion 저장
+            try:
+                save_disaster_regions(session, disaster.id, region_tuples)
+            except Exception as e:
+                print("Error saving DisasterRegion:", e)
         try:
             session.commit()
         except Exception as e:
             print(f"[!] DB 저장 실패: {e}")
             session.rollback()
-

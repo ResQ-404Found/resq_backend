@@ -9,7 +9,7 @@ class DisasterBase(BaseModel):
     active: bool
     start_time: datetime
     updated_at: datetime
-    region: str
+    region_name: str
 
 class Disaster(DisasterBase):
     id: int
