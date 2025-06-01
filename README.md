@@ -78,21 +78,25 @@ project-root/
 │   │   ├── email_handler.py
 │   │   ├── user_handler.py
 │   │   ├── disaster_handler.py
+│   │   ├── post_handler.py
 │   │   └── shelter_handler.py
 │   ├── models/
 │   │   ├── region_model.py
 │   │   ├── user_model.py
 │   │   ├── disaster_model.py
+│   │   ├── post_model.py
 │   │   └── shelter_models.py           
 │   ├── schemas/
 │   │   ├── common_schema.py
 │   │   ├── user_schema.py
+│   │   ├── post_schema.py
 │   │   └── shelter_schema.py          
 │   ├── services/ 
 │   │   ├── region_service.py
 │   │   ├── email_service.py
 │   │   ├── user_service.py
 │   │   ├── disaster_service.py
+│   │   ├── post_service.py
 │   │   └── shelter_service.py   
 │   └── utils/
 │       ├── s3_util.py

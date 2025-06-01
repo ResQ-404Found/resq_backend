@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional,TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.disaster_region_model import DisasterRegion
@@ -12,4 +12,4 @@ class Region(SQLModel, table=True):
     disasters: list["DisasterInfo"] = Relationship(
         back_populates="regions", link_model=DisasterRegion
     )
-
+    posts: List["Post"] = Relationship(back_populates="region")
