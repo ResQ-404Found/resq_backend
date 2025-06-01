@@ -82,6 +82,7 @@ project-root/
 │   │   └── shelter_handler.py
 │   ├── models/
 │   │   ├── region_model.py
+│   │   ├── disaster_region_model.py
 │   │   ├── user_model.py
 │   │   ├── disaster_model.py
 │   │   ├── post_model.py
@@ -93,6 +94,7 @@ project-root/
 │   │   └── shelter_schema.py          
 │   ├── services/ 
 │   │   ├── region_service.py
+│   │   ├── disaster_region_service.py
 │   │   ├── email_service.py
 │   │   ├── user_service.py
 │   │   ├── disaster_service.py
