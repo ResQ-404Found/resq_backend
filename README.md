@@ -71,8 +71,6 @@ project-root/
 ├── app/
 │   ├── core/
 │   │   └── redis.py
-│   ├── dependencies/
-│   │   └── auth.py
 │   ├── db/               
 │   │   ├── session.py
 │   │   └── init_db.py

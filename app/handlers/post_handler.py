@@ -5,7 +5,7 @@ from typing import List, Optional
 from app.models.region_model import Region
 from app.db.session import get_db_session
 from app.models.user_model import User
-from app.dependencies.auth import get_current_user
+from app.handlers.user_handler import get_current_user
 from app.schemas.post_schemas import PostCreate, PostUpdate, PostRead
 from app.services.post_service import PostService
 
