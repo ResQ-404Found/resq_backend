@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional,TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
 #from app.models.disasterInfo_model import DisasterInfo
 
@@ -8,3 +8,4 @@ class Region(SQLModel, table=True):
     sigungu: Optional[str] = None
     eupmyeondong: Optional[str] = None
 
+    posts: List["Post"] = Relationship(back_populates="region")
