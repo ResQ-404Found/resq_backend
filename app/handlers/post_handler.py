@@ -9,7 +9,7 @@ from app.handlers.user_handler import get_current_user
 from app.schemas.post_schemas import PostCreate, PostUpdate, PostRead
 from app.services.post_service import PostService
 
-router = APIRouter(prefix="/posts", tags=["posts"])
+router = APIRouter()
 
 @router.post("/", response_model=PostRead)
 def create_post(
