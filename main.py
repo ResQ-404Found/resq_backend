@@ -17,13 +17,13 @@ from app.handlers import comment_handler
 app = FastAPI()
 
 # Add routers
-app.include_router(shelter_handler.router, prefix="/api", tags=["shelter"])
+app.include_router(shelter_handler.router, prefix="/shelters", tags=["shelter"])
 app.include_router(user_handler.router, prefix="/api", tags=["user"])
 app.include_router(email_handler.router, prefix="/api", tags=["email"])
-app.include_router(disaster_handler.router, prefix="/api", tags=["disaster"])
+app.include_router(disaster_handler.router, prefix="/disaster", tags=["disaster"])
 app.include_router(upload_test.router, prefix="/api", tags=["upload"])
-app.include_router(post_handler.router, prefix="/api", tags=["posts"])
-app.include_router(comment_handler.router, prefix="/api", tags=["comments"])
+app.include_router(post_handler.router, prefix="/posts", tags=["posts"])
+app.include_router(comment_handler.router, prefix="/comments", tags=["comments"])
 
 # DB setup
 @app.on_event("startup")
