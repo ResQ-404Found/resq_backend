@@ -11,7 +11,7 @@ from app.handlers.user_handler import get_current_user
 router = APIRouter()
 
 # 댓글 작성하기
-@router.post("/", response_model=CommentRead)
+@router.post("/comments", response_model=CommentRead)
 def write_comment(comment_data: CommentCreate, session: Session = Depends(get_db_session), user=Depends(get_current_user)):
     comment = Comment(
         post_id=comment_data.post_id,
@@ -26,13 +26,13 @@ def write_comment(comment_data: CommentCreate, session: Session = Depends(get_db
     return comment
 
 # 특정 게시물에 달린 댓글 조회
-@router.get("/post/{post_id}", response_model=List[CommentRead])
+@router.get("/comments/posts/{post_id}", response_model=List[CommentRead])
 def read_comments(post_id: int, session: Session = Depends(get_db_session)):
     comments = session.exec(select(Comment).where(Comment.post_id == post_id)).all()
     return comments
 
 # 댓글 수정하기
-@router.put("/{comment_id}", response_model=CommentRead)
+@router.put("/comments/{comment_id}", response_model=CommentRead)
 def modify_comment(comment_id: int, update_data: CommentUpdate, session: Session = Depends(get_db_session), user=Depends(get_current_user)):
     comment = session.get(Comment, comment_id)
     if not comment or comment.user_id != user.id:
@@ -46,7 +46,7 @@ def modify_comment(comment_id: int, update_data: CommentUpdate, session: Session
     return comment
 
 # 댓글 삭제하기
-@router.delete("/{comment_id}")
+@router.delete("/comments/{comment_id}")
 def remove_comment(comment_id: int, session: Session = Depends(get_db_session), user=Depends(get_current_user)):
     comment = session.get(Comment, comment_id)
     if not comment or comment.user_id != user.id:
@@ -57,6 +57,6 @@ def remove_comment(comment_id: int, session: Session = Depends(get_db_session), 
     return {"message": "댓글 삭제 완료"}
 
 # 내가 쓴 댓글 조회
-@router.get("/me", response_model=List[CommentRead])
+@router.get("/comments/me", response_model=List[CommentRead])
 def get_my_comments(session: Session = Depends(get_db_session), user=Depends(get_current_user)):
     return session.exec(select(Comment).where(Comment.user_id == user.id)).all()

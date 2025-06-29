@@ -11,7 +11,7 @@ from app.services.post_service import PostService
 
 router = APIRouter()
 
-@router.post("/", response_model=PostRead)
+@router.post("/posts", response_model=PostRead)
 def create_post(
     post_data: PostCreate,
     current_user: User = Depends(get_current_user),
@@ -20,7 +20,7 @@ def create_post(
     service = PostService(session)
     return service.create_post(post_data, current_user.id)
 
-@router.get("/", response_model=List[PostRead])
+@router.get("/posts", response_model=List[PostRead])
 def read_posts(
     term: Optional[str] = Query(None),
     region: Optional[str] = Query(None),
@@ -33,7 +33,7 @@ def read_posts(
     service = PostService(session)
     return service.list_posts(term=term, region_ids=region_ids, sort=sort)
 
-@router.get("/me", response_model=List[PostRead])
+@router.get("/posts/me", response_model=List[PostRead])
 def read_my_posts(
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_db_session)
@@ -41,12 +41,12 @@ def read_my_posts(
     service = PostService(session)
     return service.list_user_posts(current_user.id)
 
-@router.get("/{post_id}", response_model=PostRead)
+@router.get("/posts/{post_id}", response_model=PostRead)
 def read_post(post_id: int, session: Session = Depends(get_db_session)):
     service = PostService(session)
     return service.increment_view_count(post_id)
 
-@router.patch("/{post_id}", response_model=PostRead)
+@router.patch("/posts/{post_id}", response_model=PostRead)
 def update_post(
     post_id: int,
     post_data: PostUpdate,
@@ -56,7 +56,7 @@ def update_post(
     service = PostService(session)
     return service.update_post(post_id, post_data, current_user.id)
 
-@router.delete("/{post_id}")
+@router.delete("/posts/{post_id}")
 def delete_post(
     post_id: int,
     current_user: User = Depends(get_current_user),
