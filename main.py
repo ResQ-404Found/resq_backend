@@ -10,6 +10,9 @@ from app.services.shelter_service import fetch_and_store_shelters
 from app.services.disaster_service import fetch_and_store_disasters
 from app.handlers import post_handler
 from starlette.concurrency import run_in_threadpool
+from app.handlers import comment_handler 
+
+
 
 app = FastAPI()
 
@@ -19,7 +22,8 @@ app.include_router(user_handler.router, prefix="/api", tags=["user"])
 app.include_router(email_handler.router, prefix="/api", tags=["email"])
 app.include_router(disaster_handler.router, prefix="/api", tags=["disaster"])
 app.include_router(upload_test.router, prefix="/api", tags=["upload"])
-app.include_router(post_handler.router, prefix="/api", tags=["post"])
+app.include_router(post_handler.router, prefix="/api", tags=["posts"])
+app.include_router(comment_handler.router, prefix="/api", tags=["comments"])
 
 # DB setup
 @app.on_event("startup")
