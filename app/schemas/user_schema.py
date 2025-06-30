@@ -43,4 +43,5 @@ class UserRead(BaseModel):
 UserReadResponse = ApiResponse[UserRead]
 
 class ResetPassword(BaseModel):
+    email: EmailStr
     new_password: str

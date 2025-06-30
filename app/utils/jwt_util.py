@@ -38,35 +38,3 @@ class JWTUtil:
             raise HTTPException(status_code=401, detail="토큰이 만료되었습니다.")
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
-    
-    @staticmethod
-    def generate_email_verification_token(email: str) -> str:
-        payload = {
-        "sub": email,
-        "exp": datetime.utcnow() + timedelta(minutes=30)
-        }
-        return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
-    @staticmethod
-    def decode_email_verification_token(token: str) -> str:
-        decoded = JWTUtil.decode_token(token)
-        email = decoded.get("sub")
-        if not email:
-            raise HTTPException(status_code=400, detail="토큰에 이메일 정보가 없습니다.")
-        return email
-    
-    @staticmethod
-    def generate_password_reset_token(email: str) -> str:
-        payload = {
-            "sub": email,
-            "exp": datetime.utcnow() + timedelta(minutes=30)
-        }
-        return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    
-    @staticmethod
-    def decode_password_reset_token(token: str) -> str:
-        decoded = JWTUtil.decode_token(token)
-        email = decoded.get("sub")
-        if not email:
-            raise HTTPException(status_code=400, detail="토큰에 이메일 정보가 없습니다.")
-        return email
