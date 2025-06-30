@@ -1,61 +1,53 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
-from pydantic import BaseModel
-from sqlmodel import Session
-from app.db.session import get_db_session
+from fastapi import APIRouter, Depends
 from app.schemas.common_schema import ApiResponse
-from app.core.redis import get_redis
-from redis.asyncio import Redis
 from app.schemas.user_schema import ResetPassword
 from app.services.email_service import EmailService
 from app.services.user_service import UserService
-from app.utils.jwt_util import JWTUtil
+from app.schemas.email_schema import EmailVerificationRequest, EmailVerificationCodeRequest, PasswordResetCodeRequest
 
 router = APIRouter()
 
 @router.post("/request-verification-email", response_model_exclude_none=True)
 async def request_verification_email(
-    email: str,
+    req: EmailVerificationRequest,
     email_service: EmailService = Depends()
 ) -> ApiResponse[None]:
-    await email_service.request_verification(email)
+    """이메일 인증 요청 - 인증코드 발송"""
+    await email_service.request_verification(req.email)
     return ApiResponse(message="인증 메일 발송 완료")
 
-# 토큰 유효성 검사 + 이메일 인증 완료 처리
-@router.post("/verify-email-token", response_model_exclude_none=True)
-async def verify_email(
-    authorization: str = Header(...),
+@router.post("/verify-email-code", response_model_exclude_none=True)
+async def verify_email_code(
+    req: EmailVerificationCodeRequest,
     email_service: EmailService = Depends()
 ) -> ApiResponse[None]:
-    token = authorization.replace("Bearer ", "")
-    await email_service.verify_email_token(token)
+    """이메일 인증코드 검증"""
+    await email_service.verify_email_code(req.email, req.code)
     return ApiResponse(message="이메일 인증 완료")
 
-# 비밀번호 재설정 이메일 전송
 @router.post("/request-password-reset", response_model_exclude_none=True)
 async def request_password_reset(
-    email: str,
+    req: EmailVerificationRequest,
     email_service: EmailService = Depends()
-)->ApiResponse[None]:
-    await email_service.request_password_reset(email)
+) -> ApiResponse[None]:
+    """비밀번호 재설정 인증코드 발송"""
+    await email_service.request_password_reset(req.email)
     return ApiResponse(message="비밀번호 재설정 메일 발송 완료")
 
-# 비밀번호 재설정
+@router.post("/verify-password-reset-code", response_model_exclude_none=True)
+async def verify_password_reset_code(
+    req: PasswordResetCodeRequest,
+    email_service: EmailService = Depends()
+) -> ApiResponse[None]:
+    """비밀번호 재설정 인증코드 검증"""
+    await email_service.verify_password_reset_code(req.email, req.code)
+    return ApiResponse(message="인증코드 검증 완료")
+
 @router.post("/reset-password", response_model_exclude_none=True)
 async def reset_password(
     req: ResetPassword,
-    authorization: str = Header(...),
     user_service: UserService = Depends()
 ) -> ApiResponse[None]:
-    token = authorization.replace("Bearer ", "")
-    await user_service.reset_password(token, req.new_password)
+    """비밀번호 재설정 (인증 완료 후)"""
+    await user_service.reset_password_with_email(req.email, req.new_password)
     return ApiResponse(message="비밀번호 재설정 완료")
-
-# 프론트에서 reset-password 페이지를 띄우기 전에 토큰 유효성 검사
-@router.post("/verify-password-reset-token", response_model_exclude_none=True)
-def verify_password_reset_token(authorization: str = Header(...)) -> ApiResponse[None]:
-    try:
-        token = authorization.replace("Bearer ", "")
-        JWTUtil.decode_password_reset_token(token)
-        return ApiResponse(message="토큰이 유효합니다.")
-    except Exception:
-        raise HTTPException(status_code=400, detail="토큰이 유효하지 않습니다.")
