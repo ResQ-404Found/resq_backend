@@ -1,17 +1,21 @@
 from datetime import datetime
+from redis import Redis
 from sqlmodel import Session, select
 from fastapi import HTTPException, Depends
+from app.core.redis import get_redis
 from app.models.user_model import User, UserStatus
 from app.schemas.user_schema import UserCreate, TokenPair, UserLogin, UserRead, UserUpdate
 from app.utils.jwt_util import JWTUtil
 from passlib.context import CryptContext
 from app.db.session import get_db_session
+from app.utils.redis_util import is_email_verified
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class UserService:
-    def __init__(self, db: Session=Depends(get_db_session)):
+    def __init__(self, db: Session=Depends(get_db_session), redis: Redis=Depends(get_redis)):
         self.db = db
+        self.redis = redis
     
     # 외부에서 호출하는 메서드
     def register(self, req: UserCreate) -> TokenPair:
@@ -73,13 +77,14 @@ class UserService:
             profile_imageURL=user.profile_imageURL,
             role=user.role
         )
-    
-    # 비로그인 상태에서 이메일 인증 후 재설정 요청
-    async def reset_password(self, token: str, new_password: str):
-        try:
-            email = JWTUtil.decode_password_reset_token(token)
-        except Exception:
-            raise HTTPException(status_code=400, detail="유효하지 않거나 만료된 토큰입니다.")
+
+    # 이메일 인증코드 기반 비밀번호 재설정
+    async def reset_password_with_email(self, email: str, new_password: str):
+        is_verified = await is_email_verified(self.redis, f"reset:{email}")
+        
+        if not is_verified:
+            raise HTTPException(status_code=400, detail="이메일 인증이 완료되지 않았습니다.")
+        
         user = self.db.exec(select(User).where(User.email == email, User.status == UserStatus.ACTIVE)).first()
         if not user:
             raise HTTPException(status_code=400, detail="가입되지 않은 이메일입니다.")
