@@ -1,6 +1,6 @@
 # models/comment_model.py
-from sqlmodel import SQLModel, Field
-from typing import Optional
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional, List
 from datetime import datetime
 
 class Comment(SQLModel, table=True):
@@ -11,3 +11,5 @@ class Comment(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     last_modified: Optional[datetime] = None
     like_count: int = 0
+    
+    likes: List["CommentLike"] = Relationship(back_populates="comment")

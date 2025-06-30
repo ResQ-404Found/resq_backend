@@ -1,5 +1,5 @@
-from sqlmodel import SQLModel, Field
-from typing import Optional
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional, List
 from datetime import datetime
 from enum import Enum
 
@@ -22,3 +22,7 @@ class User(SQLModel, table=True):
     status: UserStatus = Field(default=UserStatus.ACTIVE)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    
+    # 좋아요 relationship
+    post_likes: List["PostLike"] = Relationship(back_populates="user")
+    comment_likes: List["CommentLike"] = Relationship(back_populates="user")
