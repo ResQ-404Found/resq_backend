@@ -19,6 +19,8 @@ pip install PyJWT
 pip install requests
 pip install pandas
 pip install boto3
+pip install aiosmtplib
+pip install cryptography
 ```
 
 ### .env file 
@@ -75,34 +77,45 @@ project-root/
 │   │   ├── session.py
 │   │   └── init_db.py
 │   ├── handlers/
-│   │   ├── email_handler.py
-│   │   ├── user_handler.py
+│   │   ├── comment_handler.py
 │   │   ├── disaster_handler.py
+│   │   ├── email_handler.py
+│   │   ├── like_handler.py
 │   │   ├── post_handler.py
-│   │   └── shelter_handler.py
+│   │   ├── shelter_handler.py
+│   │   ├── upload_test.py
+│   │   └── user_handler.py
 │   ├── models/
+│   │   ├── comment_model.py
+│   │   ├── disaster_model.py
 │   │   ├── region_model.py
 │   │   ├── disaster_region_model.py
-│   │   ├── user_model.py
-│   │   ├── disaster_model.py
+│   │   ├── like_model.py
 │   │   ├── post_model.py
-│   │   └── shelter_models.py           
+│   │   ├── shelter_model.py
+│   │   └── user_model.py           
 │   ├── schemas/
+│   │   ├── comment_schema.py
 │   │   ├── common_schema.py
-│   │   ├── user_schema.py
+│   │   ├── disaster_schema.py
+│   │   ├── email_schema.py
+│   │   ├── like_schema.py
 │   │   ├── post_schema.py
-│   │   └── shelter_schema.py          
-│   ├── services/ 
-│   │   ├── region_service.py
+│   │   ├── shelter_schema.py
+│   │   └── user_schema.py          
+│   ├── services/
+│   │   ├── comment_service.py
 │   │   ├── disaster_region_service.py
-│   │   ├── email_service.py
-│   │   ├── user_service.py
 │   │   ├── disaster_service.py
+│   │   ├── email_service.py 
+│   │   ├── like_service.py 
 │   │   ├── post_service.py
-│   │   └── shelter_service.py   
+│   │   ├── region_service.py
+│   │   ├── shelter_service.py
+│   │   └── user_service.py   
 │   └── utils/
-│       ├── s3_util.py
 │       ├── jwt_util.py
+│       ├── s3_util.py
 │       └── redis_util.py 
 ```
 
