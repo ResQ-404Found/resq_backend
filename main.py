@@ -14,7 +14,7 @@ from app.handlers import post_handler
 from starlette.concurrency import run_in_threadpool
 from app.handlers import comment_handler 
 from app.handlers import like_handler
-
+from app.handlers import chatbot_handler
 
 app = FastAPI()
 scheduler = BackgroundScheduler()
@@ -27,6 +27,7 @@ app.include_router(disaster_handler.router, prefix="/api", tags=["disaster"])
 app.include_router(post_handler.router, prefix="/api", tags=["posts"])
 app.include_router(comment_handler.router, prefix="/api", tags=["comments"])
 app.include_router(like_handler.router, prefix="/api", tags=["likes"])
+app.include_router(chatbot_handler.router, prefix="/api", tags=["chatbot"])
 
 @scheduler.scheduled_job("interval", hours=1)
 def scheduled_disaster_fetch():
