@@ -21,6 +21,7 @@ pip install pandas
 pip install boto3
 pip install aiosmtplib
 pip install cryptography
+pip install apscheduler
 ```
 
 ### .env file 
