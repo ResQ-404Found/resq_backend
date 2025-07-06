@@ -2,6 +2,12 @@ from datetime import datetime
 from typing import Optional
 from sqlmodel import Field, Relationship, SQLModel
 
+class NotificationDisasterType(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id", nullable=False)
+    disaster_type: str
+
+    user: Optional["User"] = Relationship(back_populates="notification_disastertypes")
 
 class NotificationRegion(SQLModel,table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

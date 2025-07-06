@@ -27,5 +27,6 @@ class User(SQLModel, table=True):
     # 좋아요 relationship
     post_likes: List["PostLike"] = Relationship(back_populates="user")
     comment_likes: List["CommentLike"] = Relationship(back_populates="user")
+    notification_disastertypes: List["NotificationDisasterType"] = Relationship(back_populates="user")
     notification_regions: List["NotificationRegion"] = Relationship(back_populates="user")
     notifications: List["Notification"] = Relationship(back_populates="user")
