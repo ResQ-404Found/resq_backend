@@ -25,7 +25,8 @@ pip install apscheduler
 pip install openai
 pip install langchain
 pip install langchain-openai
-
+pip install celery
+pip install firebase_admin
 ```
 
 ### .env file 
@@ -75,6 +76,9 @@ project-root/
 ├── data/
 │   └── RegionCategory.csv
 │
+├── secrets/
+│   └── firebase_service_account.json
+│
 ├── app/
 │   ├── core/
 │   │   └── redis.py
@@ -98,6 +102,7 @@ project-root/
 │   │   ├── post_model.py
 │   │   ├── shelter_model.py
 │   │   ├── chatbot_model.py
+│   │   ├── notification_model.py
 │   │   └── user_model.py           
 │   ├── schemas/
 │   │   ├── comment_schema.py
@@ -119,8 +124,12 @@ project-root/
 │   │   ├── region_service.py
 │   │   ├── shelter_service.py
 │   │   ├── chatbot_service.py
-│   │   └── user_service.py   
+│   │   ├── notification_service.py
+│   │   └── user_service.py  
+│   ├── tasks/
+│   │   └── fcm_task.py   
 │   └── utils/
+│       ├── fcm_util.py
 │       ├── jwt_util.py
 │       ├── s3_util.py
 │       └── redis_util.py 

@@ -13,3 +13,4 @@ class Region(SQLModel, table=True):
         back_populates="regions", link_model=DisasterRegion
     )
     posts: List["Post"] = Relationship(back_populates="region")
+    notification_regions: List["NotificationRegion"] = Relationship(back_populates="region")
