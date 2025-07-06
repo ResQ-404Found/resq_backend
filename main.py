@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.db.init_db import create_db_and_tables
-from app.handlers import user_handler, email_handler, upload_test
+from app.handlers import user_handler, email_handler
 from app.core.redis import get_redis
 from redis.asyncio import Redis
 from app.handlers import shelter_handler
@@ -21,7 +21,6 @@ app.include_router(shelter_handler.router, prefix="/api", tags=["shelter"])
 app.include_router(user_handler.router, prefix="/api", tags=["user"])
 app.include_router(email_handler.router, prefix="/api", tags=["email"])
 app.include_router(disaster_handler.router, prefix="/api", tags=["disaster"])
-#app.include_router(upload_test.router, prefix="/api", tags=["upload"])
 app.include_router(post_handler.router, prefix="/api", tags=["posts"])
 app.include_router(comment_handler.router, prefix="/api", tags=["comments"])
 app.include_router(like_handler.router, prefix="/api", tags=["likes"])
