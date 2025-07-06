@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from app.db.session import db_engine
 from app.models.disaster_model import DisasterInfo
 from app.services.disaster_region_service import parse_region_tuples, save_disaster_regions
+from app.services.notification_service import enqueue_notifications
 
 KST = pytz.timezone("Asia/Seoul")
 
@@ -82,6 +83,7 @@ def process_new_disasters(items, threshold):
                 session.add(disaster)
                 session.flush()
                 save_disaster_regions(session, disaster.id, region_tuples)
+                enqueue_notifications(session, disaster)
             except Exception as e:
                 print(f"[ERROR] Insert 실패: {e} (item: {item})")
                 session.rollback()
