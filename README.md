@@ -22,6 +22,10 @@ pip install boto3
 pip install aiosmtplib
 pip install cryptography
 pip install apscheduler
+pip install openai
+pip install langchain
+pip install langchain-openai
+
 ```
 
 ### .env file 
@@ -40,7 +44,7 @@ pip install apscheduler
     AWS_SECRET_ACCESS_KEY=your_secret_key
     AWS_REGION=ap-northeast-2
     AWS_S3_BUCKET_NAME=your_bucket_name
-
+    OPENAI_API_KEY=your_openai_api_key
 
 ### Redis (Ubuntu,Linux)
     sudo apt install redis redis-tools -y
@@ -93,6 +97,7 @@ project-root/
 │   │   ├── like_model.py
 │   │   ├── post_model.py
 │   │   ├── shelter_model.py
+│   │   ├── chatbot_model.py
 │   │   └── user_model.py           
 │   ├── schemas/
 │   │   ├── comment_schema.py
@@ -102,6 +107,7 @@ project-root/
 │   │   ├── like_schema.py
 │   │   ├── post_schema.py
 │   │   ├── shelter_schema.py
+│   │   ├── chatbot_schema.py
 │   │   └── user_schema.py          
 │   ├── services/
 │   │   ├── comment_service.py
@@ -112,6 +118,7 @@ project-root/
 │   │   ├── post_service.py
 │   │   ├── region_service.py
 │   │   ├── shelter_service.py
+│   │   ├── chatbot_service.py
 │   │   └── user_service.py   
 │   └── utils/
 │       ├── jwt_util.py
