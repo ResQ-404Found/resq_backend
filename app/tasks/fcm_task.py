@@ -2,7 +2,8 @@ from celery import shared_task
 from sqlmodel import Session
 from datetime import datetime
 from app.db.session import db_engine
-from app.models.notification_model import Notification, User
+from app.models.notification_model import Notification
+from app.models.user_model import User
 from app.utils.fcm_util import send_fcm
 
 @shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=True)
