@@ -19,5 +19,6 @@ class DisasterInfo(SQLModel, table=True):
     regions: list["Region"] = Relationship(
         back_populates="disasters", link_model=DisasterRegion
     )
+    notifications: List["Notification"] = Relationship(back_populates="disaster")
 
 

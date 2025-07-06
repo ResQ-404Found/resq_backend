@@ -6,3 +6,4 @@ from .disaster_model import DisasterInfo
 from .disaster_region_model import DisasterRegion
 from .region_model import Region
 from .shelter_models import Shelter
+from .notification_model import Notification, NotificationRegion
