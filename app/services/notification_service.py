@@ -3,7 +3,7 @@ from app.models.notification_model import Notification, NotificationDisasterType
 from app.tasks.fcm_task import send_fcm_notification
 
 def enqueue_notifications(session, disaster):
-    region_ids = [dr.region_id for dr in disaster.regions]
+    region_ids = [r.id for r in disaster.regions]
     if not region_ids:
         print("[ERROR] 연결된 Region 없음")
         return
