@@ -9,7 +9,7 @@ def parse_region_tuples(region_str, session):
         sido, sigungu, eupmyeondong = find_deepest_region(chunk, session)
         if sido:
             region_tuples.append((sido, sigungu, eupmyeondong))
-            print(f"[파싱] sido={sido}, sigungu={sigungu}, eupmyeondong={eupmyeondong}")
+            #print(f"[파싱] sido={sido}, sigungu={sigungu}, eupmyeondong={eupmyeondong}")
     return list(set(region_tuples))
 
 def find_deepest_region(region_str, session):
