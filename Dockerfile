@@ -6,7 +6,7 @@ COPY . /app/
 
 RUN pip install --upgrade pip && \
     pip install "fastapi[standard]" \
-    sqlmodel pymysql redis passlib[bcrypt] PyJWT requests pandas boto3 aiosmtplib cryptography
+    sqlmodel pymysql redis passlib[bcrypt] PyJWT requests pandas boto3 aiosmtplib cryptography apscheduler
 
 RUN pip install cryptography
 
