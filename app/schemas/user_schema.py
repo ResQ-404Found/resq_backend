@@ -7,6 +7,9 @@ class TokenPair(BaseModel):
     access_token: str
     refresh_token: str
 
+class FCMTokenUpdate(BaseModel):
+    fcm_token: str
+
 class UserCreate(BaseModel):
     login_id: str
     email: EmailStr

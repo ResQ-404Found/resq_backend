@@ -3,7 +3,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2Pas
 from sqlmodel import Session
 from app.db.session import get_db_session
 from app.models.user_model import User
-from app.schemas.user_schema import UserCreate, UserCreateResponse, UserDeleteResponse, UserLogin, UserLoginResponse, UserReadResponse, UserUpdate, UserUpdateResponse
+from app.schemas.common_schema import ApiResponse
+from app.schemas.user_schema import FCMTokenUpdate, UserCreate, UserCreateResponse, UserDeleteResponse, UserLogin, UserLoginResponse, UserReadResponse, UserUpdate, UserUpdateResponse
 from app.services.user_service import UserService
 from app.core.redis import get_redis
 from redis.asyncio import Redis
@@ -77,3 +78,15 @@ def get_user_info(
 ) -> UserReadResponse:
     user_data = user_service.get_info(user.id)
     return UserReadResponse(message="회원정보 조회 성공", data=user_data)
+
+@router.patch("/users/fcm-token", response_model_exclude_none=True)
+def update_fcm_token(
+    req: FCMTokenUpdate,
+    user: User=Depends(get_current_user),
+    user_service: UserService = Depends()
+) -> ApiResponse[None]:
+    try:
+        user_service.update_user_fcm_token(user,req.fcm_token)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    return ApiResponse(message="FCM 토큰이 성공적으로 등록되었습니다.")
