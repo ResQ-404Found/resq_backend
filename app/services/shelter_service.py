@@ -1,17 +1,19 @@
 # app/services/shelter_service.py
+import os
+import requests
+import urllib3
+from datetime import datetime
+from dotenv import load_dotenv
+from sqlmodel import Session, select
 from app.db.session import db_engine
 from app.models.shelter_models import Shelter
-from sqlmodel import Session
-import requests
-from dotenv import load_dotenv
-import os
-import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 load_dotenv(dotenv_path=".env")
 
-def fetch_and_store_shelters():
+def fetch_shelters():
+    print(f"[INFO] Shelter Fetch 시작 : {datetime.utcnow()}")
     API_URL = "https://www.safetydata.go.kr/V2/api/DSSP-IF-10941"
     API_KEY = os.getenv("SHELTER_API_SERVICE_KEY")
     params = {
@@ -20,33 +22,36 @@ def fetch_and_store_shelters():
         "pageNo": "1",
         "numOfRows": "1000"
     }
-
     try:
         response = requests.get(API_URL, params=params)
-    #     print("API call URL:", response.url)
-    #     print("Status code:", response.status_code)
-    #     print("First part of response text:", response.text[:300])
     except Exception as e:
-        print("API request failed:", e)
+        print(f"[ERROR] Shelter API 요청 실패: {e}")
         return
-
     try:
         data = response.json()
-        print("JSON parsed successfully")
     except Exception as e:
-        print("JSON parsing error:", e)
-        return
-
+        print(f"[ERROR] JSON parsing error: {e}")
+        return []
+    
     items = data.get("body", [])
-    # print("Number of shelters received:", len(items))
+    return items
 
+
+def store_shelters(items: list):
     if not items:
-        print("No shelter data found.")
+        print("[INFO] No shelter data to store.")
         return
-
+    
     with Session(db_engine) as session:
         for item in items:
             try:
+                management_sn = item.get("MNG_SN")
+                existing = session.exec(
+                    select(Shelter).where(Shelter.management_serial_number == management_sn)
+                ).first()
+                if existing:
+                    continue;
+                
                 shelter = Shelter(
                     facility_name=item.get("REARE_NM"),
                     road_address=item.get("RONA_DADDR"),
@@ -58,6 +63,9 @@ def fetch_and_store_shelters():
                 )
                 session.add(shelter)
             except Exception as e:
-                print("Error adding shelter:", item.get("REARE_NM"), "->", e)
+                print("[ERROR] Error adding shelter:", item.get("REARE_NM"), "->", e)
         session.commit()
-        # print("Shelter data insert completed")
+
+def fetch_and_store_shelters():
+    items = fetch_shelters()
+    store_shelters(items)
