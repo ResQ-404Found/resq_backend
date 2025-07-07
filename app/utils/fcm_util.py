@@ -1,20 +1,18 @@
-import firebase_admin
-from firebase_admin import messaging, credentials
+from firebase_admin import messaging
 
-cred = credentials.Certificate("secrets/firebase_service_account.json")
-firebase_admin.initialize_app(cred)
-
-def send_fcm(token, title, body):
+def send_fcm_notification(token: str, title: str, body: str) -> bool:
+    print(f"[FCM] token={token} | title={title} | body={body}")
     try:
         message = messaging.Message(
+            token=token,
             notification=messaging.Notification(
                 title=title,
                 body=body
-            ),
-            token=token
+            )
         )
-        messaging.send(message)
+        response = messaging.send(message)
+        print(f"[FCM] 성공적으로 전송됨: {response}")
         return True
     except Exception as e:
-        print(f"[ERROR] FCM 발송 실패: {e}")
+        print(f"[FCM] 전송 실패: {e}")
         return False

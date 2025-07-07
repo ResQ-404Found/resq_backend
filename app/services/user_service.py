@@ -93,15 +93,6 @@ class UserService:
         user.updated_at = datetime.utcnow()
         self.db.commit()
         self.db.refresh(user)
-    
-    def update_user_fcm_token(self, user: User, fcm_token: str):
-        if not fcm_token:
-            raise ValueError("FCM 토큰이 비어있습니다.")
-        user.fcm_token = fcm_token
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
-        return True
 
     # 비밀번호 해시화
     def _hash_password(self, pwd: str) -> str:

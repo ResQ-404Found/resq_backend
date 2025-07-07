@@ -6,7 +6,7 @@ COPY . /app/
 
 RUN pip install --upgrade pip && \
     pip install "fastapi[standard]" \
-    sqlmodel pymysql redis passlib[bcrypt] PyJWT requests pandas boto3 aiosmtplib cryptography apscheduler openai langchain langchain-openai celery firebase_admin
+    sqlmodel pymysql redis passlib[bcrypt] PyJWT requests pandas boto3 aiosmtplib cryptography apscheduler openai langchain langchain-openai firebase_admin
 
 RUN pip install cryptography
 

@@ -25,7 +25,6 @@ pip install apscheduler
 pip install openai
 pip install langchain
 pip install langchain-openai
-pip install celery
 pip install firebase_admin
 ```
 
@@ -81,58 +80,68 @@ project-root/
 │
 ├── app/
 │   ├── core/
+│   │   ├── firebase.py
 │   │   └── redis.py
 │   ├── db/               
 │   │   ├── session.py
 │   │   └── init_db.py
 │   ├── handlers/
+│   │   ├── chatbot_handler.py
 │   │   ├── comment_handler.py
 │   │   ├── disaster_handler.py
 │   │   ├── email_handler.py
+│   │   ├── fcm_handler.py
 │   │   ├── like_handler.py
+│   │   ├── notification_disastertype_handler.py
+│   │   ├── notification_handler.py
+│   │   ├── notification_region_handler.py
 │   │   ├── post_handler.py
 │   │   ├── shelter_handler.py
 │   │   └── user_handler.py
 │   ├── models/
+│   │   ├── chatbot_model.py
 │   │   ├── comment_model.py
 │   │   ├── disaster_model.py
-│   │   ├── region_model.py
 │   │   ├── disaster_region_model.py
 │   │   ├── like_model.py
-│   │   ├── post_model.py
-│   │   ├── shelter_model.py
-│   │   ├── chatbot_model.py
 │   │   ├── notification_model.py
+│   │   ├── post_model.py
+│   │   ├── region_model.py
+│   │   ├── shelter_model.py
 │   │   └── user_model.py           
 │   ├── schemas/
+│   │   ├── chatbot_schema.py
 │   │   ├── comment_schema.py
 │   │   ├── common_schema.py
 │   │   ├── disaster_schema.py
 │   │   ├── email_schema.py
 │   │   ├── like_schema.py
+│   │   ├── notification_disastertype_schema.py
+│   │   ├── notification_region_schema.py
+│   │   ├── notification_schema.py
 │   │   ├── post_schema.py
 │   │   ├── shelter_schema.py
-│   │   ├── chatbot_schema.py
 │   │   └── user_schema.py          
 │   ├── services/
+│   │   ├── chatbot_service.py
 │   │   ├── comment_service.py
 │   │   ├── disaster_region_service.py
 │   │   ├── disaster_service.py
 │   │   ├── email_service.py 
+│   │   ├── fcm_service.py 
 │   │   ├── like_service.py 
+│   │   ├── notification_disastertype_service.py 
+│   │   ├── notification_region_service.py 
+│   │   ├── notification_service.py 
 │   │   ├── post_service.py
 │   │   ├── region_service.py
 │   │   ├── shelter_service.py
-│   │   ├── chatbot_service.py
-│   │   ├── notification_service.py
-│   │   └── user_service.py  
-│   ├── tasks/
-│   │   └── fcm_task.py   
+│   │   └── user_service.py   
 │   └── utils/
 │       ├── fcm_util.py
 │       ├── jwt_util.py
-│       ├── s3_util.py
-│       └── redis_util.py 
+│       ├── redis_util.py
+│       └── s3_util.py 
 ```
 
 ### 개발 버전 관리

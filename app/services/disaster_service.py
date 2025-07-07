@@ -6,10 +6,11 @@ from sqlmodel import Session, select
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+from sqlalchemy.orm import joinedload
 from app.db.session import db_engine
 from app.models.disaster_model import DisasterInfo
 from app.services.disaster_region_service import parse_region_tuples, save_disaster_regions
-from app.services.notification_service import enqueue_notifications
+from app.services.notification_service import create_notifications, get_subscribed_user_ids, send_notifications
 
 KST = pytz.timezone("Asia/Seoul")
 
@@ -47,6 +48,7 @@ def fetch_disaster_items():
 
 def process_new_disasters(items, threshold):
     now = datetime.now(KST)
+    new_disaster_ids = []  # disaster 객체 대신 ID만 저장
     with Session(db_engine) as session:
         for item in items:
             try:
@@ -83,16 +85,33 @@ def process_new_disasters(items, threshold):
                 session.add(disaster)
                 session.flush()
                 save_disaster_regions(session, disaster.id, region_tuples)
-                enqueue_notifications(session, disaster)
+                session.commit()
+                new_disaster_ids.append(disaster.id)  # ID만 저장
             except Exception as e:
-                print(f"[ERROR] Insert 실패: {e} (item: {item})")
+                print(f"[ERROR] Disaster/DisasterRegion Insert 실패: {e} (item: {item})")
                 session.rollback()
                 continue
-        try:
-            session.commit()
-        except:
-            print(f"[ERROR] Disasterinfo commit 실패: {e}")
-            session.rollback()
+    
+    # 새로운 세션에서 notification 처리
+    for disaster_id in new_disaster_ids:
+        with Session(db_engine) as session:
+            try:
+                # regions 관계를 미리 로드
+                disaster = session.exec(
+                    select(DisasterInfo)
+                    .options(joinedload(DisasterInfo.regions))
+                    .where(DisasterInfo.id == disaster_id)
+                ).first()
+                if disaster:  # 객체가 존재하는지 확인
+                    user_ids = get_subscribed_user_ids(session, disaster)
+                    notifs = create_notifications(session, user_ids, disaster)
+                    if notifs:  # notifs가 None이거나 빈 리스트가 아닌 경우에만 처리
+                        send_notifications(session, notifs)
+            except Exception as e:
+                print(f"[ERROR] Notification 처리 실패: {e}")
+                session.rollback()
+                continue
+
 
 def deactivate_old_disasters(threshold):
     with Session(db_engine) as session:
@@ -116,7 +135,7 @@ def fetch_and_store_disasters():
         print("[INFO] 가져온 데이터 없음, 종료")
         return
     now = datetime.now(KST)
-    threshold = now - timedelta(hours=3)
+    threshold = now - timedelta(hours=10)
     
     process_new_disasters(items, threshold)
     deactivate_old_disasters(threshold)
