@@ -1,5 +1,6 @@
 from sched import scheduler
 from fastapi import FastAPI
+from app.core.firebase import init_firebase
 from app.db.init_db import create_db_and_tables
 from app.handlers import user_handler, email_handler
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -41,6 +42,7 @@ def scheduled_shelter_fetch():
 @app.on_event("startup")
 async def on_startup():
     redis: Redis = await get_redis()
+    init_firebase()
     await create_db_and_tables()
     await run_in_threadpool(load_region_csv)
     await run_in_threadpool(fetch_and_store_shelters)
