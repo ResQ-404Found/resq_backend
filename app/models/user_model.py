@@ -17,6 +17,7 @@ class User(SQLModel, table=True):
     email: str = Field(nullable=False)
     password: str = Field(nullable=False)
     username: str = Field(nullable=False)
+    point: int = 0
     profile_imageURL: Optional[str] = Field(default=None)
     role: UserRole = Field(default=UserRole.USER)
     status: UserStatus = Field(default=UserStatus.ACTIVE)

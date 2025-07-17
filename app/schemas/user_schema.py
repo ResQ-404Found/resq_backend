@@ -40,6 +40,7 @@ UserDeleteResponse = ApiResponse[None]
 class UserRead(BaseModel):
     email: EmailStr
     username: str
+    point: int
     profile_imageURL: Optional[HttpUrl] = None
     role: UserRole
 

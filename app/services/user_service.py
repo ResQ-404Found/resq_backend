@@ -74,6 +74,7 @@ class UserService:
         return UserRead(
             email=user.email,
             username=user.username,
+            point=user.point,
             profile_imageURL=user.profile_imageURL,
             role=user.role
         )
