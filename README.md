@@ -97,6 +97,7 @@ project-root/
 │   │   ├── notification_region_handler.py
 │   │   ├── post_handler.py
 │   │   ├── shelter_handler.py
+│   │   ├── sponsor_handler.py
 │   │   └── user_handler.py
 │   ├── models/
 │   │   ├── chatbot_model.py
@@ -108,6 +109,7 @@ project-root/
 │   │   ├── post_model.py
 │   │   ├── region_model.py
 │   │   ├── shelter_model.py
+│   │   ├── sponsor_model.py
 │   │   └── user_model.py           
 │   ├── schemas/
 │   │   ├── chatbot_schema.py
@@ -121,6 +123,7 @@ project-root/
 │   │   ├── notification_schema.py
 │   │   ├── post_schema.py
 │   │   ├── shelter_schema.py
+│   │   ├── sponsor_schema.py
 │   │   └── user_schema.py          
 │   ├── services/
 │   │   ├── chatbot_service.py
@@ -136,6 +139,7 @@ project-root/
 │   │   ├── post_service.py
 │   │   ├── region_service.py
 │   │   ├── shelter_service.py
+│   │   ├── sponsor_service.py
 │   │   └── user_service.py   
 │   └── utils/
 │       ├── fcm_util.py
