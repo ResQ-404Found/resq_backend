@@ -9,12 +9,12 @@ from app.services.notification_service import (
     get_notifications_by_user
 )
 
-router = APIRouter(prefix="/notifications")
+router = APIRouter()
 
-@router.post("/", response_model=NotificationRead)
+@router.post("/notifications", response_model=NotificationRead)
 def create(req: NotificationCreate, user: User = Depends(get_current_user), session: Session = Depends(get_db_session)):
     return create_notification(session, user.id, req.disaster_id, req.title, req.body)
 
-@router.get("/", response_model=list[NotificationRead])
+@router.get("/notifications", response_model=list[NotificationRead])
 def get_user_notifications(user: User = Depends(get_current_user), session: Session = Depends(get_db_session)):
     return get_notifications_by_user(session, user.id)

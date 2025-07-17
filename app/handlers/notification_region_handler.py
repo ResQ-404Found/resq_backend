@@ -11,9 +11,9 @@ from app.services.notification_region_service import (
 from app.handlers.user_handler import get_current_user
 from app.models.user_model import User
 
-router = APIRouter(prefix="/notification-regions")
+router = APIRouter()
 
-@router.post("/", response_model=NotificationRegionRead)
+@router.post("/notification-regions", response_model=NotificationRegionRead)
 def create_region_subscription(
     req: NotificationRegionCreate,
     session: Session = Depends(get_db_session),
@@ -21,14 +21,14 @@ def create_region_subscription(
 ):
     return create_notification_region(session, user_id=user.id, region_id=req.region_id)
 
-@router.get("/", response_model=list[NotificationRegionRead])
+@router.get("/notification-regions", response_model=list[NotificationRegionRead])
 def get_my_regions(
     session: Session = Depends(get_db_session),
     user: User = Depends(get_current_user)
 ):
     return get_notification_regions_by_user(session, user.id)
 
-@router.delete("/{notification_region_id}")
+@router.delete("/notification-regions/{notification_region_id}")
 def delete_region_subscription(
     notification_region_id: int,
     session: Session = Depends(get_db_session),
