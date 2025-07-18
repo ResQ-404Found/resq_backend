@@ -24,6 +24,7 @@ class User(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     fcm_token: Optional[str] = Field(default=None, nullable=True)
+    posts: List["Post"] = Relationship(back_populates="user")
     
     # 좋아요 relationship
     post_likes: List["PostLike"] = Relationship(back_populates="user")
