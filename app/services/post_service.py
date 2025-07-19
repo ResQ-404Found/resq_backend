@@ -3,21 +3,37 @@ from typing import List, Optional
 from fastapi.concurrency import run_in_threadpool
 from sqlmodel import Session, select
 from fastapi import HTTPException, UploadFile
+from sqlalchemy.orm import selectinload
 
 from app.models.post_model import Post
-from app.schemas.post_schemas import PostCreate, PostUpdate
+from app.models.user_model import User
+from app.schemas.post_schemas import Author, PostCreate, PostRead, PostUpdate
 from app.utils.s3_util import delete_file_from_s3, upload_file_to_s3
 
 class PostService:
     def __init__(self, session: Session):
         self.session = session
 
+    def _serialize_post(self, post: Post, author: Author) -> PostRead:
+        return PostRead(
+        id=post.id,
+        user_id=post.user_id,
+        title=post.title,
+        content=post.content,
+        region_id=post.region_id,
+        post_imageURLs=post.post_imageURLs,
+        created_at=post.created_at,
+        view_count=post.view_count,
+        like_count=post.like_count,
+        author=author
+    )
+
     async def create_post(
         self, 
         post_data: PostCreate, 
-        user_id: int, 
+        user: User, 
         files: Optional[List[UploadFile]] = None
-    ) -> Post:
+    ) -> PostRead:
         image_urls = []
         if files:
             for file in files:
@@ -28,28 +44,44 @@ class PostService:
 
         post = Post(
             **post_data.dict(),
-            user_id=user_id
+            user_id=user.id
         )
         self.session.add(post)
         self.session.commit()
         self.session.refresh(post)
-        return post
+        author = Author(
+            id=user.id,
+            username=user.username,
+            profile_imageURL=user.profile_imageURL
+        )
+        return self._serialize_post(post, author)
 
-    def get_post(self, post_id: int, raise_exception: bool = True) -> Post:
-        post = self.session.get(Post, post_id)
-        if not post and raise_exception:
+    def get_post(self, post_id: int) -> PostRead:
+        post = self.session.exec(
+            select(Post).where(Post.id == post_id).options(selectinload(Post.user))).first()
+        if not post:
             raise HTTPException(status_code=404, detail="Post not found")
-        return post
+        if post.user is None:
+            raise HTTPException(status_code=500, detail="작성자 정보 누락")
+        author = Author(
+            id=post.user.id,
+            username=post.user.username,
+            profile_imageURL=post.user.profile_imageURL
+            )
+        return self._serialize_post(post, author)
 
     async def update_post(
         self,
         post_id: int,
         post_data: PostUpdate,
-        current_user_id: int,
+        user: User,
         files: Optional[List[UploadFile]] = None
     ) -> Post:
-        post = self.get_post(post_id)
-        if post.user_id != current_user_id:
+        post = self.session.exec(
+            select(Post).where(Post.id == post_id)).first()
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        if post.user_id != user.id:
             raise HTTPException(status_code=403, detail="작성자만 수정할 수 있습니다.")
         
         existing_urls = set(post.post_imageURLs or [])
@@ -70,11 +102,18 @@ class PostService:
         self.session.add(post)
         self.session.commit()
         self.session.refresh(post)
-        return post
+        author = Author(
+            id=user.id,
+            username=user.username,
+            profile_imageURL=user.profile_imageURL
+        )
+        return self._serialize_post(post, author)
 
-    def delete_post(self, post_id: int, current_user_id: int):
-        post = self.get_post(post_id)
-        if post.user_id != current_user_id:
+    def delete_post(self, post_id: int, user: User):
+        post = self.session.exec(select(Post).where(Post.id == post_id)).first()
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        if post.user_id != user.id:
             raise HTTPException(status_code=403, detail="작성자만 삭제할 수 있습니다.")
         
         if post.post_imageURLs:
@@ -85,28 +124,50 @@ class PostService:
         return {"ok": True}
 
     def list_posts(self, term: str = None, region_ids: list = None, sort: str = None):
-        query = select(Post)
-
+        query = select(Post).options(selectinload(Post.user))
         if term:
             query = query.where(Post.title.contains(term) | Post.content.contains(term))
-
         if region_ids:
             query = query.where(Post.region_id.in_(region_ids))
-
         if sort == "latest":
             query = query.order_by(Post.created_at.desc())
         elif sort == "popular":
             query = query.order_by(Post.view_count.desc())
+        posts = self.session.exec(query).all()
+        return [
+        self._serialize_post(
+            post,
+            Author(
+                id=post.user.id,
+                username=post.user.username,
+                profile_imageURL=post.user.profile_imageURL
+            )
+        )
+        for post in posts
+    ]
 
-        return self.session.exec(query).all()
-
-    def list_user_posts(self, user_id: int):
-        return self.session.exec(select(Post).where(Post.user_id == user_id)).all()
+    def list_user_posts(self, user: User):
+        posts = self.session.exec(select(Post).where(Post.user_id == user.id)).all()
+        author = Author(
+            id=user.id,
+            username=user.username,
+            profile_imageURL=user.profile_imageURL
+        )
+        return [self._serialize_post(post, author) for post in posts]
 
     def increment_view_count(self, post_id: int):
-        post = self.get_post(post_id)
+        post = self.session.exec(
+            select(Post).where(Post.id == post_id).options(selectinload(Post.user))
+        ).first()
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
         post.view_count += 1
         self.session.add(post)
         self.session.commit()
         self.session.refresh(post)
-        return post
+        author = Author(
+            id=post.user.id,
+            username=post.user.username,
+            profile_imageURL=post.user.profile_imageURL
+        )
+        return self._serialize_post(post, author)

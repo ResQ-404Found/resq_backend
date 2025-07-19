@@ -27,7 +27,7 @@ async def create_post(
         region_id=region_id,
     )
     service = PostService(session)
-    return await service.create_post(post_data, current_user.id, files)
+    return await service.create_post(post_data, current_user, files)
 
 @router.get("/posts", response_model=List[PostRead])
 def read_posts(
@@ -48,7 +48,7 @@ def read_my_posts(
     session: Session = Depends(get_db_session)
 ):
     service = PostService(session)
-    return service.list_user_posts(current_user.id)
+    return service.list_user_posts(current_user)
 
 @router.get("/posts/{post_id}", response_model=PostRead)
 def read_post(post_id: int, session: Session = Depends(get_db_session)):
@@ -73,7 +73,7 @@ async def update_post(
         post_imageURLs = [url for url in post_imageURLs or [] if url] or None
     )
     service = PostService(session)
-    return await service.update_post(post_id, post_data, current_user.id, files)
+    return await service.update_post(post_id, post_data, current_user, files)
 
 @router.delete("/posts/{post_id}")
 def delete_post(
@@ -82,4 +82,4 @@ def delete_post(
     session: Session = Depends(get_db_session)
 ):
     service = PostService(session)
-    return service.delete_post(post_id, current_user.id)
+    return service.delete_post(post_id, current_user)

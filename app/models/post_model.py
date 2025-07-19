@@ -17,6 +17,6 @@ class Post(SQLModel,table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     view_count : int = Field(default=0)
     like_count : int = Field(default=0)
-    
+    user: Optional["User"] = Relationship(back_populates="posts")
     region: Optional["Region"] = Relationship(back_populates="posts")
     likes: List["PostLike"] = Relationship(back_populates="post")

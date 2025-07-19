@@ -8,12 +8,22 @@ class PostCreate(BaseModel):
     region_id: int
     post_imageURLs: List[str] = []
 
-class PostRead(PostCreate):
+class Author(BaseModel):
+    id: int
+    username: str
+    profile_imageURL: Optional[str] = None
+
+class PostRead(BaseModel):
     id: int
     user_id: int
+    title: str
+    content: str
+    region_id: int
+    post_imageURLs: List[str] = []
     created_at: datetime
     view_count: int
     like_count: int
+    author: Author
 
     model_config = {
         "from_attributes": True
