@@ -47,7 +47,10 @@ pip install bs4
     AWS_REGION=ap-northeast-2
     AWS_S3_BUCKET_NAME=your_bucket_name
     OPENAI_API_KEY=your_openai_api_key
-    
+    HOSPITAL_API_SERVICE_KEY=your_hospital_api_key
+    NAVER_CLIENT_ID = your_naver_client_id
+    NAVER_CLIENT_SECRET = your_naver_client_secret
+    YOUTUBE_API_KEY = your_youtube_api_key
 
 ### Redis (Ubuntu,Linux)
     sudo apt install redis redis-tools -y
