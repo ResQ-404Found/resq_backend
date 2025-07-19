@@ -27,6 +27,9 @@ pip install langchain
 pip install langchain-openai
 pip install firebase_admin
 pip install bs4
+pip install google-api-python-client
+pip install google-auth-httplib2
+pip install google-auth-oauthlib
 ```
 
 ### .env file 
@@ -47,7 +50,10 @@ pip install bs4
     AWS_REGION=ap-northeast-2
     AWS_S3_BUCKET_NAME=your_bucket_name
     OPENAI_API_KEY=your_openai_api_key
-    
+    HOSPITAL_API_SERVICE_KEY=your_hospital_api_key
+    NAVER_CLIENT_ID = your_naver_client_id
+    NAVER_CLIENT_SECRET = your_naver_client_secret
+    YOUTUBE_API_KEY = your_youtube_api_key
 
 ### Redis (Ubuntu,Linux)
     sudo apt install redis redis-tools -y
@@ -102,6 +108,7 @@ project-root/
 │   │   ├── shelter_handler.py
 │   │   ├── sponsor_handler.py
 │   │   ├── hospital_handler.py
+│   │   ├── youtube_handler.py
 │   │   └── user_handler.py
 │   ├── models/
 │   │   ├── chatbot_model.py
@@ -115,7 +122,8 @@ project-root/
 │   │   ├── shelter_model.py
 │   │   ├── sponsor_model.py
 │   │   ├── hospital_model.py
-│   │   ├── news_model.pyd
+│   │   ├── news_model.py
+│   │   ├── youtube_model.py
 │   │   └── user_model.py           
 │   ├── schemas/
 │   │   ├── chatbot_schema.py
@@ -132,6 +140,7 @@ project-root/
 │   │   ├── sponsor_schema.py
 │   │   ├── hospital_schema.py
 │   │   ├── news_schema.py
+│   │   ├── youtube_schema.py
 │   │   └── user_schema.py          
 │   ├── services/
 │   │   ├── chatbot_service.py
@@ -150,6 +159,7 @@ project-root/
 │   │   ├── sponsor_service.py
 │   │   ├── hospital_service.py
 │   │   ├── news_service.py
+│   │   ├── youtube_service.py
 │   │   └── user_service.py   
 │   └── utils/
 │       ├── fcm_util.py

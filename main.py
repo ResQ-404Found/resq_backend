@@ -19,11 +19,12 @@ from app.handlers import chatbot_handler
 from app.handlers import hospital_handler
 from app.services.hospital_service import fetch_and_store_hospitals
 from app.handlers import news_handler
-
+from app.handlers import youtube_handler
 app = FastAPI()
 scheduler = BackgroundScheduler()
 
 # Add routers
+app.include_router(youtube_handler.router, prefix="/api", tags= ["youtube"])
 app.include_router(news_handler.router, prefix="/api", tags= ["news"])
 app.include_router(hospital_handler.router, prefix="/api", tags=["hospital"])
 app.include_router(shelter_handler.router, prefix="/api", tags=["shelter"])
