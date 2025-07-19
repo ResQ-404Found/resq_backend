@@ -26,6 +26,7 @@ class User(SQLModel, table=True):
     fcm_token: Optional[str] = Field(default=None, nullable=True)
     
     # 좋아요 relationship
+    posts: List["Post"] = Relationship(back_populates="user")
     post_likes: List["PostLike"] = Relationship(back_populates="user")
     comment_likes: List["CommentLike"] = Relationship(back_populates="user")
     notification_disastertypes: List["NotificationDisasterType"] = Relationship(back_populates="user")

@@ -42,9 +42,7 @@ async def create_post(
         post_imageURLs=image_urls if image_urls else None
     )
     service = PostService(session)
-    post = service.create_post(post_data, current_user.id, image_urls)
-    return service.to_read_dto(post)
-
+    return await service.create_post(post_data, current_user, files)
 
 @router.get("/posts", response_model=List[PostRead])
 def read_posts(
@@ -66,8 +64,7 @@ def read_my_posts(
     session: Session = Depends(get_db_session)
 ):
     service = PostService(session)
-    posts = service.list_user_posts(current_user.id)
-    return [service.to_read_dto(post) for post in posts]
+    return service.list_user_posts(current_user)
 
 @router.get("/posts/{post_id}", response_model=PostRead)
 def read_post(post_id: int, session: Session = Depends(get_db_session)):
@@ -104,8 +101,7 @@ async def update_post(
     )
 
     service = PostService(session)
-    post = service.update_post(post_id, post_data, current_user.id, new_image_urls=image_urls)
-    return service.to_read_dto(post)
+    return await service.update_post(post_id, post_data, current_user, files)
 
 @router.delete("/posts/{post_id}")
 def delete_post(
@@ -114,4 +110,4 @@ def delete_post(
     session: Session = Depends(get_db_session)
 ):
     service = PostService(session)
-    return service.delete_post(post_id, current_user.id)
+    return service.delete_post(post_id, current_user)

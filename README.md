@@ -99,6 +99,7 @@ project-root/
 │   │   ├── notification_region_handler.py
 │   │   ├── post_handler.py
 │   │   ├── shelter_handler.py
+│   │   ├── sponsor_handler.py
 │   │   ├── hospital_handler.py
 │   │   └── user_handler.py
 │   ├── models/
