@@ -18,6 +18,8 @@ from app.handlers import like_handler
 from app.handlers import chatbot_handler
 from app.handlers import hospital_handler
 from app.services.hospital_service import fetch_and_store_hospitals
+from app.handlers import news_handler
+
 app = FastAPI()
 scheduler = BackgroundScheduler()
 
@@ -36,6 +38,7 @@ app.include_router(notification_region_handler.router, prefix="/api", tags=["not
 app.include_router(notification_disastertype_handler.router, prefix="/api", tags=["notification_disastertype"])
 app.include_router(notification_handler.router, prefix="/api", tags=["notification"])
 app.include_router(sponsor_handler.router, prefix="/api", tags=["sponsor"])
+app.include_router(news_handler.router, prefix="/api", tags= ["news"])
 
 
 @scheduler.scheduled_job("interval", hours=1)
