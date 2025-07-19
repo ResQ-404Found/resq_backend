@@ -28,46 +28,31 @@ DAY_MAPPINGS = {
 
 def fetch_hospitals():
     print(f"[INFO] 병원 데이터 Fetch 시작: {datetime.utcnow()}")
-    page = 1
-    all_items = []
-    while True:
-        params = {
-            "serviceKey": API_KEY,
-            "returnType": "json",
-            "pageNo": page,
-            "numOfRows": 1000
-        }
 
-        try:
-            response = requests.get(API_URL, params=params, verify=False)
-            print("[DEBUG] 최종 요청 URL:", response.request.url)
-            #print("[DEBUG] 응답 상태코드:", response.status_code)
-            #print("[DEBUG] 응답 내용 (앞부분):", response.text[:300])
-        except Exception as e:
-            print(f"[ERROR] 병원 API 요청 실패: {e}")
-            return []
+    params = {
+        "serviceKey": API_KEY,
+        "returnType": "json",
+        "pageNo": "1",
+        "numOfRows": "1000"
+    }
 
-        try:
-            data = response.json()
-        except Exception as e:
-            print(f"[ERROR] JSON 파싱 실패: {e}")
-            break
-    
-        items = data.get("body", [])
-        if not items:
-            print(f"[INFO] Page {page}: 데이터 없음. 종료.")
-            break
+    try:
+        response = requests.get(API_URL, params=params, verify=False)
+        print("[DEBUG] 최종 요청 URL:", response.request.url)
+        print("[DEBUG] 응답 상태코드:", response.status_code)
+        print("[DEBUG] 응답 내용 (앞부분):", response.text[:300])
+    except Exception as e:
+        print(f"[ERROR] 병원 API 요청 실패: {e}")
+        return []
 
-        print(f"[INFO] Page {page}: {len(items)}건 수신")
-        all_items.extend(items)
+    try:
+        data = response.json()
+    except Exception as e:
+        print(f"[ERROR] JSON 파싱 실패: {e}")
+        return []
 
-        # 이 페이지에서 받아온 데이터가 1000건보다 적으면 마지막 페이지
-        if len(items) < 1000:
-            break
-
-        page += 1
-
-    return all_items
+    items = data.get("body", [])
+    return items
 
 
 def store_hospitals(items: list):
