@@ -16,11 +16,13 @@ from starlette.concurrency import run_in_threadpool
 from app.handlers import comment_handler 
 from app.handlers import like_handler
 from app.handlers import chatbot_handler
-
+from app.handlers import hospital_handler
+from app.services.hospital_service import fetch_and_store_hospitals
 app = FastAPI()
 scheduler = BackgroundScheduler()
 
 # Add routers
+app.include_router(hospital_handler.router, prefix="/api", tags=["hospital"])
 app.include_router(shelter_handler.router, prefix="/api", tags=["shelter"])
 app.include_router(user_handler.router, prefix="/api", tags=["user"])
 app.include_router(email_handler.router, prefix="/api", tags=["email"])
@@ -44,6 +46,10 @@ def scheduled_disaster_fetch():
 def scheduled_shelter_fetch():
     fetch_and_store_shelters()
 
+@scheduler.scheduled_job("cron", day=1, hour=0, minute=0)
+def scheduled_hospital_fetch():
+    fetch_and_store_hospitals()
+
 # DB setup
 @app.on_event("startup")
 async def on_startup():
@@ -53,6 +59,7 @@ async def on_startup():
     await run_in_threadpool(load_region_csv)
     await run_in_threadpool(fetch_and_store_shelters)
     await run_in_threadpool(fetch_and_store_disasters)
+    await run_in_threadpool(fetch_and_store_hospitals)
     scheduler.start()
     print("[APScheduler] Started!")
 

@@ -40,11 +40,13 @@ pip install firebase_admin
     GOOGLE_SMTP_PASSWORD=your_smtp_password
     SHELTER_API_SERVICE_KEY = 대피소 API 키
     DISASTER_API_SERVICE_KEY = 재난 API 키
+    HOSPITAL_API_SERVICE_KEY= 병원 API 키
     AWS_ACCESS_KEY_ID=your_access_key
     AWS_SECRET_ACCESS_KEY=your_secret_key
     AWS_REGION=ap-northeast-2
     AWS_S3_BUCKET_NAME=your_bucket_name
     OPENAI_API_KEY=your_openai_api_key
+    
 
 ### Redis (Ubuntu,Linux)
     sudo apt install redis redis-tools -y
@@ -98,6 +100,7 @@ project-root/
 │   │   ├── post_handler.py
 │   │   ├── shelter_handler.py
 │   │   ├── sponsor_handler.py
+│   │   ├── hospital_handler.py
 │   │   └── user_handler.py
 │   ├── models/
 │   │   ├── chatbot_model.py
