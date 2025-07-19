@@ -24,6 +24,7 @@ app = FastAPI()
 scheduler = BackgroundScheduler()
 
 # Add routers
+app.include_router(news_handler.router, prefix="/api", tags= ["news"])
 app.include_router(hospital_handler.router, prefix="/api", tags=["hospital"])
 app.include_router(shelter_handler.router, prefix="/api", tags=["shelter"])
 app.include_router(user_handler.router, prefix="/api", tags=["user"])
@@ -38,8 +39,6 @@ app.include_router(notification_region_handler.router, prefix="/api", tags=["not
 app.include_router(notification_disastertype_handler.router, prefix="/api", tags=["notification_disastertype"])
 app.include_router(notification_handler.router, prefix="/api", tags=["notification"])
 app.include_router(sponsor_handler.router, prefix="/api", tags=["sponsor"])
-app.include_router(news_handler.router, prefix="/api", tags= ["news"])
-
 
 @scheduler.scheduled_job("interval", hours=1)
 def scheduled_disaster_fetch():
