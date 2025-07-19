@@ -26,6 +26,7 @@ pip install openai
 pip install langchain
 pip install langchain-openai
 pip install firebase_admin
+pip install bs4
 ```
 
 ### .env file 
@@ -113,6 +114,8 @@ project-root/
 │   │   ├── region_model.py
 │   │   ├── shelter_model.py
 │   │   ├── sponsor_model.py
+│   │   ├── hospital_model.py
+│   │   ├── news_model.pyd
 │   │   └── user_model.py           
 │   ├── schemas/
 │   │   ├── chatbot_schema.py
@@ -127,6 +130,8 @@ project-root/
 │   │   ├── post_schema.py
 │   │   ├── shelter_schema.py
 │   │   ├── sponsor_schema.py
+│   │   ├── hospital_schema.py
+│   │   ├── news_schema.py
 │   │   └── user_schema.py          
 │   ├── services/
 │   │   ├── chatbot_service.py
@@ -143,6 +148,8 @@ project-root/
 │   │   ├── region_service.py
 │   │   ├── shelter_service.py
 │   │   ├── sponsor_service.py
+│   │   ├── hospital_service.py
+│   │   ├── news_service.py
 │   │   └── user_service.py   
 │   └── utils/
 │       ├── fcm_util.py
