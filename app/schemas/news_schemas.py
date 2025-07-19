@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
 
-# 목록용 스키마
+# 목록용
 class NewsRead(BaseModel):
     id: int
     title: str
@@ -10,7 +10,7 @@ class NewsRead(BaseModel):
     class Config:
         orm_mode = True
 
-# 상세용 스키마
+# 상세용 (본문 포함)
 class NewsDetail(BaseModel):
     id: int
     title: str
@@ -21,3 +21,11 @@ class NewsDetail(BaseModel):
 
     class Config:
         orm_mode = True
+
+# 요약 요청
+class NewsSummaryRequest(BaseModel):
+    news_id: int
+
+# 요약 응답
+class NewsSummaryResponse(BaseModel):
+    summary: str
