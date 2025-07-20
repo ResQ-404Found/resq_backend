@@ -26,7 +26,10 @@ class UserService:
         return JWTUtil.generate_token_pair(user.id)
     
     def login(self, req: UserLogin) -> TokenPair:
-        user = self.db.exec(select(User).where(User.login_id == req.login_id)).first()
+        user = self.db.exec(
+        select(User)
+        .where(User.login_id == req.login_id)
+        .where(User.status != UserStatus.INACTIVE)).first()
         if not user or user.status == UserStatus.INACTIVE:
             raise HTTPException(400, detail="존재하지 않는 사용자입니다.")
         if not self._verify_password(req.password, user.password):
