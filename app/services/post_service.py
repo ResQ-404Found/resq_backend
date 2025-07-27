@@ -20,6 +20,7 @@ class PostService:
         user_id=post.user_id,
         title=post.title,
         content=post.content,
+        type=post.type,
         region_id=post.region_id,
         post_imageURLs=post.post_imageURLs,
         created_at=post.created_at,
@@ -123,10 +124,12 @@ class PostService:
         self.session.commit()
         return {"ok": True}
 
-    def list_posts(self, term: str = None, region_ids: list = None, sort: str = None):
+    def list_posts(self, term: str = None, type: str = None, region_ids: list = None, sort: str = None):
         query = select(Post).options(selectinload(Post.user))
         if term:
             query = query.where(Post.title.contains(term) | Post.content.contains(term))
+        if type:
+            query = query.where(Post.type == type)
         if region_ids:
             query = query.where(Post.region_id.in_(region_ids))
         if sort == "latest":

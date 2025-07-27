@@ -1,10 +1,11 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 from datetime import datetime
 from pydantic import BaseModel
 
 class PostCreate(BaseModel):
     title: str
     content: str
+    type: Literal["disaster", "normal"]
     region_id: int
     post_imageURLs: List[str] = []
 
@@ -18,6 +19,7 @@ class PostRead(BaseModel):
     user_id: int
     title: str
     content: str
+    type: Literal["disaster", "normal"]
     region_id: int
     post_imageURLs: List[str] = []
     created_at: datetime
@@ -32,6 +34,7 @@ class PostRead(BaseModel):
 class PostUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
+    type: Optional[Literal["disaster", "normal"]] = None
     region_id: Optional[int] = None
     post_imageURLs: Optional[List[str]] = None
 
