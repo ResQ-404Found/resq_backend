@@ -71,7 +71,7 @@ class SponsorService:
     def donate_to_sponsor(self, sponsor_id: int, amount: int, user: User) -> Sponsor:
         sponsor = self.get_sponsor(sponsor_id)
         sponsor.current_money += amount
-        user.point += amount
+        user.point += (amount // 1000) * 100
         self.session.add_all([sponsor, user])
         self.session.commit()
         self.session.refresh(sponsor)

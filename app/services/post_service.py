@@ -20,6 +20,7 @@ class PostService:
         user_id=post.user_id,
         title=post.title,
         content=post.content,
+        type=post.type,
         region_id=post.region_id,
         post_imageURLs=post.post_imageURLs,
         created_at=post.created_at,
@@ -46,13 +47,19 @@ class PostService:
             **post_data.dict(),
             user_id=user.id
         )
+        if post.type == "disaster":
+            user.point += 10
+        elif post.type == "normal":
+            user.point += 5
+        self.session.add(user)
         self.session.add(post)
         self.session.commit()
         self.session.refresh(post)
         author = Author(
             id=user.id,
             username=user.username,
-            profile_imageURL=user.profile_imageURL
+            profile_imageURL=user.profile_imageURL,
+            point=user.point
         )
         return self._serialize_post(post, author)
 
@@ -105,7 +112,8 @@ class PostService:
         author = Author(
             id=user.id,
             username=user.username,
-            profile_imageURL=user.profile_imageURL
+            profile_imageURL=user.profile_imageURL,
+            point=user.point
         )
         return self._serialize_post(post, author)
 
@@ -123,10 +131,12 @@ class PostService:
         self.session.commit()
         return {"ok": True}
 
-    def list_posts(self, term: str = None, region_ids: list = None, sort: str = None):
+    def list_posts(self, term: str = None, type: str = None, region_ids: list = None, sort: str = None):
         query = select(Post).options(selectinload(Post.user))
         if term:
             query = query.where(Post.title.contains(term) | Post.content.contains(term))
+        if type:
+            query = query.where(Post.type == type)
         if region_ids:
             query = query.where(Post.region_id.in_(region_ids))
         if sort == "latest":
@@ -140,7 +150,8 @@ class PostService:
             Author(
                 id=post.user.id,
                 username=post.user.username,
-                profile_imageURL=post.user.profile_imageURL
+                profile_imageURL=post.user.profile_imageURL,
+                point=post.user.point
             )
         )
         for post in posts
@@ -151,7 +162,8 @@ class PostService:
         author = Author(
             id=user.id,
             username=user.username,
-            profile_imageURL=user.profile_imageURL
+            profile_imageURL=user.profile_imageURL,
+            point=user.point
         )
         return [self._serialize_post(post, author) for post in posts]
 
@@ -168,6 +180,7 @@ class PostService:
         author = Author(
             id=post.user.id,
             username=post.user.username,
-            profile_imageURL=post.user.profile_imageURL
+            profile_imageURL=post.user.profile_imageURL,
+            point=post.user.point
         )
         return self._serialize_post(post, author)
