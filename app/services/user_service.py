@@ -1,4 +1,6 @@
 from datetime import datetime
+from typing import Optional
+from fastapi.concurrency import run_in_threadpool
 from redis import Redis
 from sqlmodel import Session, select
 from fastapi import HTTPException, Depends
@@ -9,6 +11,7 @@ from app.utils.jwt_util import JWTUtil
 from passlib.context import CryptContext
 from app.db.session import get_db_session
 from app.utils.redis_util import is_email_verified
+from app.utils.s3_util import delete_file_from_s3, upload_file_to_s3
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -48,10 +51,6 @@ class UserService:
         if req.username and req.username != user.username:
             self._exception_if_duplicate("username", req.username)
             user.username = req.username
-        
-        # 프로필 이미지 변경
-        if req.profile_imageURL:
-            user.profile_imageURL = req.profile_imageURL
         
         # 비밀번호 변경
         if req.password:
@@ -97,6 +96,24 @@ class UserService:
         user.updated_at = datetime.utcnow()
         self.db.commit()
         self.db.refresh(user)
+
+    async def update_image(self, user: User, file_bytes: Optional[bytes], filename: Optional[str]):
+        if user.profile_imageURL:
+            try:
+                delete_file_from_s3(user.profile_imageURL)
+            except Exception as e:
+                print(f"이전 프로필 이미지 삭제 실패: {e}")
+            user.profile_imageURL = None
+        
+        if file_bytes and filename:
+            image_url = await run_in_threadpool(upload_file_to_s3, file_bytes, filename, "uploads/profile")
+            user.profile_imageURL = image_url
+        else:
+            image_url = None
+        user.updated_at = datetime.utcnow()
+        self.db.commit()
+        self.db.refresh(user)
+        return image_url
 
     # 비밀번호 해시화
     def _hash_password(self, pwd: str) -> str:

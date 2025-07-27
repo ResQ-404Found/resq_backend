@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from typing import Optional
+from fastapi import APIRouter, Depends, File, HTTPException, Header, UploadFile
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.models.user_model import User
 from app.schemas.user_schema import UserCreate, UserCreateResponse, UserDeleteResponse, UserLogin, UserLoginResponse, UserReadResponse, UserUpdate, UserUpdateResponse
@@ -59,6 +60,20 @@ def update_user(
 ) -> UserUpdateResponse:
     user_service.update(user.id, req)
     return UserUpdateResponse(message="회원정보 수정 성공")
+
+@router.patch("/users/profile-image")
+async def update_profile_image(
+    file: Optional[UploadFile] = File(None), 
+    user: User = Depends(get_current_user),
+    user_service: UserService = Depends()
+):
+    if file:
+        file_bytes = await file.read()
+        image_url = await user_service.update_image(user, file_bytes, file.filename)
+        return {"message": "프로필 이미지가 성공적으로 수정되었습니다.", "image_url": image_url}
+    else:
+        image_url = await user_service.update_image(user, None, None)
+        return {"message": "프로필 이미지가 삭제되었습니다.", "image_url": image_url}
 
 @router.patch("/users/delete", response_model_exclude_none=True)
 def delete_user(

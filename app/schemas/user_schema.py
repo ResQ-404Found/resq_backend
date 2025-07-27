@@ -39,7 +39,6 @@ class PasswordUpdatePair(BaseModel):
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
-    profile_imageURL: Optional[HttpUrl] = None
     password: Optional[PasswordUpdatePair] = None
 
 UserUpdateResponse = ApiResponse[None]

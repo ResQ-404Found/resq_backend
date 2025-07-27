@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, Session
 from app.db.session import db_engine
 from app.models.notification_model import NotificationDisasterType, NotificationRegion
 from app.models.region_model import Region
-from app.models.user_model import User
+from app.models.user_model import User, UserRole
 from app.schemas.user_schema import UserCreate
 from app.services.user_service import UserService
 from sqlalchemy import text
@@ -20,19 +20,19 @@ async def create_db_and_tables():
 
 
     # 3. 테스트 유저 삽입
-    # with Session(db_engine) as session:
-    #     dummy_user = User(
-    #         login_id="test",
-    #         email="test@example.com",
-    #         password=pwd_context.hash("test"),
-    #         username="관리자",
-    #         role="admin",
-    #         profile_imageURL=None,
-    #         status="active"
-    #     )
-    #     session.add(dummy_user)
-    #     session.commit()
-    #     session.refresh(dummy_user)
+    with Session(db_engine) as session:
+        dummy_user = User(
+            login_id="Admin",
+            email="yimnabin20051022@gmail.com",
+            password=pwd_context.hash("Admin"),
+            username="username",
+            role=UserRole.ADMIN,
+            profile_imageURL=None,
+            status="active"
+        )
+        session.add(dummy_user)
+        session.commit()
+        session.refresh(dummy_user)
 
     #     region = Region(
     #         sido="경상북도",
