@@ -13,6 +13,7 @@ class Author(BaseModel):
     id: int
     username: str
     profile_imageURL: Optional[str] = None
+    point: int
 
 class PostRead(BaseModel):
     id: int

@@ -6,10 +6,11 @@ from collections import defaultdict
 
 from app.models.comment_models import Comment
 from app.models.post_model import Post
+from app.models.user_model import User
 from app.schemas.comment_schemas import CommentCreate
 
 # 댓글 생성
-def create_comment(session: Session, user_id: int, req: CommentCreate) -> Comment:
+def create_comment(session: Session, user: User, req: CommentCreate) -> Comment:
     post = session.get(Post, req.post_id)
     if not post:
         raise HTTPException(status_code=404, detail="게시글이 존재하지 않습니다.")
@@ -22,11 +23,13 @@ def create_comment(session: Session, user_id: int, req: CommentCreate) -> Commen
     
     comment = Comment(
         post_id=req.post_id,
-        user_id=user_id,
+        user_id=user.id,
         parent_comment_id=req.parent_comment_id,
         content=req.content,
         last_modified=datetime.utcnow()
     )
+    user.point += 2
+    session.add(user)
     session.add(comment)
     session.commit()
     session.refresh(comment)

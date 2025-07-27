@@ -47,13 +47,19 @@ class PostService:
             **post_data.dict(),
             user_id=user.id
         )
+        if post.type == "disaster":
+            user.point += 10
+        elif post.type == "normal":
+            user.point += 5
+        self.session.add(user)
         self.session.add(post)
         self.session.commit()
         self.session.refresh(post)
         author = Author(
             id=user.id,
             username=user.username,
-            profile_imageURL=user.profile_imageURL
+            profile_imageURL=user.profile_imageURL,
+            point=user.point
         )
         return self._serialize_post(post, author)
 
@@ -106,7 +112,8 @@ class PostService:
         author = Author(
             id=user.id,
             username=user.username,
-            profile_imageURL=user.profile_imageURL
+            profile_imageURL=user.profile_imageURL,
+            point=user.point
         )
         return self._serialize_post(post, author)
 
@@ -143,7 +150,8 @@ class PostService:
             Author(
                 id=post.user.id,
                 username=post.user.username,
-                profile_imageURL=post.user.profile_imageURL
+                profile_imageURL=post.user.profile_imageURL,
+                point=post.user.point
             )
         )
         for post in posts
@@ -154,7 +162,8 @@ class PostService:
         author = Author(
             id=user.id,
             username=user.username,
-            profile_imageURL=user.profile_imageURL
+            profile_imageURL=user.profile_imageURL,
+            point=user.point
         )
         return [self._serialize_post(post, author) for post in posts]
 
@@ -171,6 +180,7 @@ class PostService:
         author = Author(
             id=post.user.id,
             username=post.user.username,
-            profile_imageURL=post.user.profile_imageURL
+            profile_imageURL=post.user.profile_imageURL,
+            point=post.user.point
         )
         return self._serialize_post(post, author)
