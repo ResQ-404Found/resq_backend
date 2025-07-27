@@ -23,7 +23,7 @@ async def create_db_and_tables():
     with Session(db_engine) as session:
         dummy_user = User(
             login_id="Admin",
-            email="yimnabin20051022@gmail.com",
+            email="resq.404found@gmail.com",
             password=pwd_context.hash("Admin"),
             username="username",
             role=UserRole.ADMIN,
