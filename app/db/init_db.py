@@ -20,42 +20,42 @@ async def create_db_and_tables():
 
 
     # 3. 테스트 유저 삽입
-    # with Session(db_engine) as session:
-    #     dummy_user = User(
-    #         login_id="test",
-    #         email="test@example.com",
-    #         password=pwd_context.hash("test"),
-    #         username="관리자",
-    #         role="admin",
-    #         profile_imageURL=None,
-    #         status="active"
-    #     )
-    #     session.add(dummy_user)
-    #     session.commit()
-    #     session.refresh(dummy_user)
+    with Session(db_engine) as session:
+        dummy_user = User(
+            login_id="string",
+            email="test@example.com",
+            password=pwd_context.hash("string"),
+            username="관리자",
+            role="admin",
+            profile_imageURL=None,
+            status="active"
+        )
+        session.add(dummy_user)
+        session.commit()
+        session.refresh(dummy_user)
 
-    #     region = Region(
-    #         sido="경상북도",
-    #         sigungu="의성군",
-    #     )
-    #     session.add(region)
-    #     session.commit()
-    #     session.refresh(region)
+        region = Region(
+            sido="경상북도",
+            sigungu="의성군",
+        )
+        session.add(region)
+        session.commit()
+        session.refresh(region)
 
-    #     user_id = dummy_user.id
-    #     region_id = region.id
+        user_id = dummy_user.id
+        region_id = region.id
     
-    # with Session(db_engine) as session:
-    #     notification_region = NotificationRegion(
-    #     user_id=user_id,
-    #     region_id=region_id
-    #     )
-    #     session.add(notification_region)
-    #     session.commit()
+    with Session(db_engine) as session:
+        notification_region = NotificationRegion(
+        user_id=user_id,
+        region_id=region_id
+        )
+        session.add(notification_region)
+        session.commit()
 
-    #     notification_disastertype = NotificationDisasterType(
-    #     user_id=user_id,
-    #     disaster_type="폭염"   # 예시: 원하는 재난 타입
-    #     )
-    #     session.add(notification_disastertype)
-    #     session.commit()
+        notification_disastertype = NotificationDisasterType(
+        user_id=user_id,
+        disaster_type="폭염"   # 예시: 원하는 재난 타입
+        )
+        session.add(notification_disastertype)
+        session.commit()
