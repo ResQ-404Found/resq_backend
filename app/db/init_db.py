@@ -22,19 +22,11 @@ async def create_db_and_tables():
     # 3. 테스트 유저 삽입
     with Session(db_engine) as session:
         dummy_user = User(
-<<<<<<< HEAD
-            login_id="string",
-            email="test@example.com",
-            password=pwd_context.hash("string"),
-            username="관리자",
-            role="admin",
-=======
             login_id="Admin",
             email="resq.404found@gmail.com",
             password=pwd_context.hash("Admin"),
             username="username",
             role=UserRole.ADMIN,
->>>>>>> 2b7972a9ce0ee3caf62d962878f8854b67e01b80
             profile_imageURL=None,
             status="active"
         )
