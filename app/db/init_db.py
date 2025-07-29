@@ -34,28 +34,28 @@ async def create_db_and_tables():
         session.commit()
         session.refresh(dummy_user)
 
-    #     region = Region(
-    #         sido="경상북도",
-    #         sigungu="의성군",
-    #     )
-    #     session.add(region)
-    #     session.commit()
-    #     session.refresh(region)
+        region = Region(
+            sido="경상북도",
+            sigungu="의성군",
+        )
+        session.add(region)
+        session.commit()
+        session.refresh(region)
 
-    #     user_id = dummy_user.id
-    #     region_id = region.id
+        user_id = dummy_user.id
+        region_id = region.id
     
-    # with Session(db_engine) as session:
-    #     notification_region = NotificationRegion(
-    #     user_id=user_id,
-    #     region_id=region_id
-    #     )
-    #     session.add(notification_region)
-    #     session.commit()
+    with Session(db_engine) as session:
+        notification_region = NotificationRegion(
+        user_id=user_id,
+        region_id=region_id
+        )
+        session.add(notification_region)
+        session.commit()
 
-    #     notification_disastertype = NotificationDisasterType(
-    #     user_id=user_id,
-    #     disaster_type="폭염"   # 예시: 원하는 재난 타입
-    #     )
-    #     session.add(notification_disastertype)
-    #     session.commit()
+        notification_disastertype = NotificationDisasterType(
+        user_id=user_id,
+        disaster_type="폭염"   # 예시: 원하는 재난 타입
+        )
+        session.add(notification_disastertype)
+        session.commit()

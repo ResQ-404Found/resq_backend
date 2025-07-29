@@ -9,9 +9,7 @@ class News(SQLModel, table=True):
     origin_url: str
     naver_url: str
     pub_date: datetime
-
-class NewsSummaryRequest(BaseModel):
-    news_id: int
-
+    description: Optional[str] = None 
+    
 class NewsSummaryResponse(BaseModel):
     summary: str
