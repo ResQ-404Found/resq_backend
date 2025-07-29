@@ -6,7 +6,8 @@ class NewsRead(BaseModel):
     id: int
     title: str
     pub_date: datetime
-
+    description: str
+    
     class Config:
         orm_mode = True
 
@@ -17,14 +18,10 @@ class NewsDetail(BaseModel):
     origin_url: str
     naver_url: str
     pub_date: datetime
-    full_text: str
+
 
     class Config:
         orm_mode = True
-
-# 요약 요청
-class NewsSummaryRequest(BaseModel):
-    news_id: int
 
 # 요약 응답
 class NewsSummaryResponse(BaseModel):
