@@ -87,14 +87,14 @@ class NewsService:
         prompt = (
             "다음은 최신 뉴스 제목들입니다:\n\n"
             + "\n".join(titles)
-            + "\n\n이 뉴스 제목들을 기반으로 지금 핫한 이슈나 키워드를 3줄 이내로 요약해줘."
+            + "\n\n이 뉴스들은 재난에 관한 뉴스들만 모은 목록들이야 이 뉴스 제목들을 기반으로 지금 핫한 이슈를 3줄 이내로 요약해줘. 그리고 마지막 줄에 'HOT 키워드:'라고 적고 핫한 키워드 3개를 적어줘"
         )
 
         try:
             response = self.openai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
-                    {"role": "system", "content": "사용자가 제공한 뉴스 제목들에서 중요한 키워드나 이슈를 추출해 요약해줘.말투는 친절하게"},
+                    {"role": "system", "content": "사용자가 제공한 재난 뉴스 제목들에서 중요한 키워드나 이슈를 추출해 요약해줘.말투는 친절하게"},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.7,
