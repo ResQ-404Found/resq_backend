@@ -26,6 +26,10 @@ pip install openai
 pip install langchain
 pip install langchain-openai
 pip install firebase_admin
+pip install bs4
+pip install google-api-python-client
+pip install google-auth-httplib2
+pip install google-auth-oauthlib
 ```
 
 ### .env file 
@@ -46,7 +50,10 @@ pip install firebase_admin
     AWS_REGION=ap-northeast-2
     AWS_S3_BUCKET_NAME=your_bucket_name
     OPENAI_API_KEY=your_openai_api_key
-    
+    HOSPITAL_API_SERVICE_KEY=your_hospital_api_key
+    NAVER_CLIENT_ID = your_naver_client_id
+    NAVER_CLIENT_SECRET = your_naver_client_secret
+    YOUTUBE_API_KEY = your_youtube_api_key
 
 ### Redis (Ubuntu,Linux)
     sudo apt install redis redis-tools -y
@@ -101,6 +108,7 @@ project-root/
 │   │   ├── shelter_handler.py
 │   │   ├── sponsor_handler.py
 │   │   ├── hospital_handler.py
+│   │   ├── youtube_handler.py
 │   │   └── user_handler.py
 │   ├── models/
 │   │   ├── chatbot_model.py
@@ -113,6 +121,9 @@ project-root/
 │   │   ├── region_model.py
 │   │   ├── shelter_model.py
 │   │   ├── sponsor_model.py
+│   │   ├── hospital_model.py
+│   │   ├── news_model.py
+│   │   ├── youtube_model.py
 │   │   └── user_model.py           
 │   ├── schemas/
 │   │   ├── chatbot_schema.py
@@ -127,6 +138,9 @@ project-root/
 │   │   ├── post_schema.py
 │   │   ├── shelter_schema.py
 │   │   ├── sponsor_schema.py
+│   │   ├── hospital_schema.py
+│   │   ├── news_schema.py
+│   │   ├── youtube_schema.py
 │   │   └── user_schema.py          
 │   ├── services/
 │   │   ├── chatbot_service.py
@@ -143,6 +157,9 @@ project-root/
 │   │   ├── region_service.py
 │   │   ├── shelter_service.py
 │   │   ├── sponsor_service.py
+│   │   ├── hospital_service.py
+│   │   ├── news_service.py
+│   │   ├── youtube_service.py
 │   │   └── user_service.py   
 │   └── utils/
 │       ├── fcm_util.py
@@ -159,4 +176,6 @@ project-root/
 - v2.0 2차 배포 완료 (댓글, 재난정보, 게시글, 좋아요, 지역)
 - v2.1 2차 추가 기능 배포 완료 (게시글 이미지 관련 기능)
 - v3.0 3차 추가 기능 배포 완료 (알림, 챗봇, 스케쥴링)
+- v4.0 4차 추가 기능 배포 완료 (병원, 뉴스AI, 유튜브 영상, 후원, 게시글 응답 구조 수정, 대댓글)
+- v4.1 회원 탈퇴 후 로그인 에러 수정 및 FCM Test Handler 추가
 ```

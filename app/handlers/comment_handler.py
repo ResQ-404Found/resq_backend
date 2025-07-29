@@ -24,7 +24,7 @@ def write_comment(
     session: Session = Depends(get_db_session),
     user=Depends(get_current_user)
 ):
-    return create_comment(session=session, user_id=user.id, req=req)
+    return create_comment(session=session, user=user, req=req)
 
 # 특정 게시물에 달린 댓글 조회
 @router.get("/comments/{post_id}", response_model=List[CommentRead])

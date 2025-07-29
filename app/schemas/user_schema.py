@@ -10,6 +10,15 @@ class TokenPair(BaseModel):
 class FCMTokenUpdate(BaseModel):
     fcm_token: str
 
+class FCMTestRequest(BaseModel):
+    title: str
+    body: str
+
+class DirectFCMRequest(BaseModel):
+    token: str
+    title: str
+    body: str
+
 class UserCreate(BaseModel):
     login_id: str
     email: EmailStr
@@ -30,7 +39,6 @@ class PasswordUpdatePair(BaseModel):
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
-    profile_imageURL: Optional[HttpUrl] = None
     password: Optional[PasswordUpdatePair] = None
 
 UserUpdateResponse = ApiResponse[None]

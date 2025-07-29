@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import JSON
 class Post(SQLModel,table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id")
+    type: str
     title:str
     content:str
     region_id: int = Field(foreign_key="region.id")

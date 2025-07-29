@@ -15,6 +15,7 @@ router = APIRouter()
 async def create_post(
     title: str = Form(...),
     content: str = Form(...),
+    type: Optional[str] = Form(None),
     region_id: int = Form(...),
     files: Optional[List[UploadFile]] = File(None),
     current_user: User = Depends(get_current_user),
@@ -24,6 +25,7 @@ async def create_post(
     post_data = PostCreate(
         title=title,
         content=content,
+        type=type,
         region_id=region_id,
     )
     service = PostService(session)
@@ -32,6 +34,7 @@ async def create_post(
 @router.get("/posts", response_model=List[PostRead])
 def read_posts(
     term: Optional[str] = Query(None),
+    type: Optional[str] = Query(None),
     region: Optional[str] = Query(None),
     sort: Optional[str] = Query(None),
     session: Session = Depends(get_db_session)
@@ -40,7 +43,7 @@ def read_posts(
     if region:
         region_ids = session.exec(select(Region.id).where(Region.sido == region)).all()
     service = PostService(session)
-    return service.list_posts(term=term, region_ids=region_ids, sort=sort)
+    return service.list_posts(term=term, type=type, region_ids=region_ids, sort=sort)
 
 @router.get("/posts/me", response_model=List[PostRead])
 def read_my_posts(
@@ -60,6 +63,7 @@ async def update_post(
     post_id: int,
     title: Optional[str] = Form(None),  
     content: Optional[str] = Form(None),
+    type: Optional[str] = Form(None),
     region_id: Optional[int] = Form(None),
     post_imageURLs: Optional[List[str]] = Form(None),
     files: Optional[List[UploadFile]] = File(None),
@@ -69,6 +73,7 @@ async def update_post(
     post_data = PostUpdate(
         title=title or None,
         content=content or None,
+        type=type or None,
         region_id=region_id,
         post_imageURLs = [url for url in post_imageURLs or [] if url] or None
     )

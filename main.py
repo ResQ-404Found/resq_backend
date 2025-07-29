@@ -18,10 +18,14 @@ from app.handlers import like_handler
 from app.handlers import chatbot_handler
 from app.handlers import hospital_handler
 from app.services.hospital_service import fetch_and_store_hospitals
+from app.handlers import news_handler
+from app.handlers import youtube_handler
 app = FastAPI()
 scheduler = BackgroundScheduler()
 
 # Add routers
+app.include_router(youtube_handler.router, prefix="/api", tags= ["youtube"])
+app.include_router(news_handler.router, prefix="/api", tags= ["news"])
 app.include_router(hospital_handler.router, prefix="/api", tags=["hospital"])
 app.include_router(shelter_handler.router, prefix="/api", tags=["shelter"])
 app.include_router(user_handler.router, prefix="/api", tags=["user"])
@@ -36,7 +40,6 @@ app.include_router(notification_region_handler.router, prefix="/api", tags=["not
 app.include_router(notification_disastertype_handler.router, prefix="/api", tags=["notification_disastertype"])
 app.include_router(notification_handler.router, prefix="/api", tags=["notification"])
 app.include_router(sponsor_handler.router, prefix="/api", tags=["sponsor"])
-
 
 @scheduler.scheduled_job("interval", hours=1)
 def scheduled_disaster_fetch():
