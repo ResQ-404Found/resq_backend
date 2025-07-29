@@ -74,13 +74,7 @@ class NewsService:
         return self.session.exec(
             select(News).order_by(News.pub_date.desc())
         ).all()
-
-    def get_news_by_id(self, news_id: int) -> News:
-        news = self.session.get(News, news_id)
-        if not news:
-            raise ValueError("News not found")
-        return news
-
+    
     def generate_hot_keywords_summary(self, limit: int = 3) -> str:
         recent_news = self.session.exec(
             select(News).order_by(News.pub_date.desc()).limit(limit)

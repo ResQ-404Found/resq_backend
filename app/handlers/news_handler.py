@@ -5,7 +5,6 @@ from app.db.session import get_db_session
 from app.services.news_service import NewsService
 from app.schemas.news_schemas import (
     NewsRead,
-    NewsDetail,
     NewsSummaryResponse
 )
 
@@ -21,15 +20,6 @@ def list_news(query: str = Query(..., description="검색어는 필수입니다"
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"뉴스 검색 실패: {e}")
 
-@router.get("/news/{news_id}", response_model=NewsDetail)
-def read_news_detail(news_id: int, session: Session = Depends(get_db_session)):
-    service = NewsService(session)
-    try:
-        news = service.get_news_by_id(news_id)
-    except ValueError:
-        raise HTTPException(status_code=404, detail="뉴스를 찾을 수 없습니다.")
-
-    return news
 
 @router.post("/news/ai", response_model=NewsSummaryResponse)
 def generate_summary(session: Session = Depends(get_db_session)):

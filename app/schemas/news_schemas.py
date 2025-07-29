@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel
+from typing import Optional
 
 # 목록용
 class NewsRead(BaseModel):
@@ -7,18 +8,8 @@ class NewsRead(BaseModel):
     title: str
     pub_date: datetime
     description: str
-    
-    class Config:
-        orm_mode = True
-
-# 상세용 (본문 포함)
-class NewsDetail(BaseModel):
-    id: int
-    title: str
-    origin_url: str
     naver_url: str
-    pub_date: datetime
-
+    origin_url: Optional[str] = None
 
     class Config:
         orm_mode = True

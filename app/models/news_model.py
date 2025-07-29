@@ -11,8 +11,5 @@ class News(SQLModel, table=True):
     pub_date: datetime
     description: Optional[str] = None 
     
-class NewsSummaryRequest(BaseModel):
-    news_id: int
-
 class NewsSummaryResponse(BaseModel):
     summary: str
