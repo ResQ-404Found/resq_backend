@@ -180,4 +180,5 @@ project-root/
 - v4.1 회원 탈퇴 후 로그인 에러 수정 및 FCM Test Handler 추가
 - v4.2 게시글 type, Point 관련 수정
 - v4.3 News 키워드 추출 및 기능 변경
+- v4.4 Youtube API limit 추가, Post Delete Error Fix
 ```
