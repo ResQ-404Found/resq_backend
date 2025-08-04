@@ -11,6 +11,10 @@ class CommentCreate(BaseModel):
 class CommentUpdate(BaseModel):
     content: str
 
+class Author(BaseModel):
+    username: str
+    profile_imageURL: Optional[str] = None
+
 class CommentRead(BaseModel):
     id: int
     post_id: int
@@ -21,5 +25,8 @@ class CommentRead(BaseModel):
     last_modified: Optional[datetime]
     like_count: int
     is_deleted: bool
+    author: Author
     replies: List["CommentRead"] = []
+
+
 
