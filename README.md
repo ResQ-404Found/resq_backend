@@ -181,4 +181,5 @@ project-root/
 - v4.2 게시글 type, Point 관련 수정
 - v4.3 News 키워드 추출 및 기능 변경
 - v4.4 Youtube API limit 추가, Post Delete Error Fix
+- v4.5 CommentRead에 Author 필드 추가
 ```
