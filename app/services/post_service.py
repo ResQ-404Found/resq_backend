@@ -143,7 +143,7 @@ class PostService:
         if sort == "latest":
             query = query.order_by(Post.created_at.desc())
         elif sort == "popular":
-            query = query.order_by(Post.view_count.desc())
+            query = query.order_by(Post.like_count.desc())
         posts = self.session.exec(query).all()
         return [
         self._serialize_post(
