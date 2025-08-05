@@ -6,7 +6,7 @@ class PostCreate(BaseModel):
     title: str
     content: str
     type: Literal["disaster", "normal"]
-    region_id: int
+    region_id: Optional[int] = None
     post_imageURLs: List[str] = []
 
 class Author(BaseModel):
@@ -21,7 +21,7 @@ class PostRead(BaseModel):
     title: str
     content: str
     type: Literal["disaster", "normal"]
-    region_id: int
+    region_id: Optional[int] = None
     post_imageURLs: List[str] = []
     created_at: datetime
     view_count: int

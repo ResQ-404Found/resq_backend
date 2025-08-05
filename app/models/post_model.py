@@ -10,7 +10,7 @@ class Post(SQLModel,table=True):
     type: str
     title:str
     content:str
-    region_id: int = Field(foreign_key="region.id")
+    region_id: Optional[int] = Field(default=None, foreign_key="region.id", nullable=True)
     post_imageURLs: List[str] = Field(
     sa_column=Column(JSON, default=[])
 )
