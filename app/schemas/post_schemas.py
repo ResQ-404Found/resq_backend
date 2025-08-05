@@ -1,12 +1,12 @@
 from typing import List, Literal, Optional
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel,constr
 
 class PostCreate(BaseModel):
     title: str
     content: str
     type: Literal["disaster", "normal"]
-    region_id: int
+    region_id: Optional[int] = None
     post_imageURLs: List[str] = []
 
 class Author(BaseModel):
@@ -19,15 +19,15 @@ class PostRead(BaseModel):
     id: int
     user_id: int
     title: str
-    content: str
+    content: constr(max_length=500)
     type: Literal["disaster", "normal"]
-    region_id: int
+    region_id: Optional[int] = None
     post_imageURLs: List[str] = []
     created_at: datetime
     view_count: int
     like_count: int
     author: Author
-
+    comment_count: int
     model_config = {
         "from_attributes": True
     }

@@ -16,20 +16,28 @@ async def create_post(
     title: str = Form(...),
     content: str = Form(...),
     type: Optional[str] = Form(None),
-    region_id: int = Form(...),
+    region_id: Optional[str] = Form(None), 
     files: Optional[List[UploadFile]] = File(None),
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_db_session)
 ):
-    
+    if region_id and region_id.isdigit():
+        region_id_int = int(region_id)
+        if region_id_int == 0:
+            region_id_int = None
+    else:
+        region_id_int = None
+
+
     post_data = PostCreate(
         title=title,
         content=content,
         type=type,
-        region_id=region_id,
+        region_id=region_id_int,
     )
     service = PostService(session)
     return await service.create_post(post_data, current_user, files)
+
 
 @router.get("/posts", response_model=List[PostRead])
 def read_posts(
