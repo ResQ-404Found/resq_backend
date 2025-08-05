@@ -27,7 +27,7 @@ class PostRead(BaseModel):
     view_count: int
     like_count: int
     author: Author
-
+    comment_count: int
     model_config = {
         "from_attributes": True
     }

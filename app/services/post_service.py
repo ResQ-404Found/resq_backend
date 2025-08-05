@@ -26,7 +26,8 @@ class PostService:
         created_at=post.created_at,
         view_count=post.view_count,
         like_count=post.like_count,
-        author=author
+        author=author,
+        comment_count=len(post.comments) 
     )
 
     async def create_post(
@@ -158,7 +159,7 @@ class PostService:
     ]
 
     def list_user_posts(self, user: User):
-        posts = self.session.exec(select(Post).where(Post.user_id == user.id)).all()
+        posts = self.session.exec(select(Post).where(Post.user_id == user.id).options(selectinload(Post.comments))).all()
         author = Author(
             id=user.id,
             username=user.username,
