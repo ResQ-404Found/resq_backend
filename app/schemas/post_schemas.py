@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel,constr
 
 class PostCreate(BaseModel):
     title: str
@@ -19,7 +19,7 @@ class PostRead(BaseModel):
     id: int
     user_id: int
     title: str
-    content: str
+    content: constr(max_length=500)
     type: Literal["disaster", "normal"]
     region_id: Optional[int] = None
     post_imageURLs: List[str] = []

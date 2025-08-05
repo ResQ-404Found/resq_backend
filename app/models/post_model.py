@@ -1,7 +1,7 @@
 from typing import Optional, List
 from datetime import datetime
 from sqlmodel import Field, SQLModel, Relationship, JSON
-from sqlalchemy import Column
+from sqlalchemy import Column,String
 from sqlalchemy.dialects.postgresql import JSON
 
 class Post(SQLModel,table=True):
@@ -9,7 +9,7 @@ class Post(SQLModel,table=True):
     user_id: int = Field(foreign_key="user.id")
     type: str
     title:str
-    content:str
+    content:str = Field(sa_column=Column(String(500)))
     region_id: Optional[int] = Field(default=None, foreign_key="region.id", nullable=True)
     post_imageURLs: List[str] = Field(
     sa_column=Column(JSON, default=[])
