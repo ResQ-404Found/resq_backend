@@ -11,8 +11,6 @@ class EmergencyContact(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id", index=True)        # 나
     target_user_id: int = Field(foreign_key="user.id", index=True) # 친구
     relation: Optional[str] = None
-    is_emergency: bool = False
-    is_favorite: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class EmergencyLocation(SQLModel, table=True):

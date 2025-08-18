@@ -4,6 +4,7 @@ from sqlmodel import Session, select
 from app.models.user_model import User
 from app.models.friend_model import FriendRequest, FriendStatus
 from app.models.emergency_model import EmergencyContact
+from app.services.emergency_contact_service import EmergencyContactService
 
 class FriendService:
     def __init__(self, s: Session, user_id: int):
@@ -65,14 +66,45 @@ class FriendService:
             raise ValueError("수락할 수 없는 요청입니다.")
         fr.status = FriendStatus.ACCEPTED
         fr.responded_at = datetime.utcnow()
-        self.s.add(fr); self.s.commit()
+        self.s.add(fr); self.s.commit(); self.s.refresh(fr)
 
-        self._upsert_contact(fr.requester_id, fr.addressee_id)  
-        self._upsert_contact(fr.addressee_id, fr.requester_id)  
+        EmergencyContactService(self.s, fr.requester_id).set_emergency(fr.addressee_id, True)
+        EmergencyContactService(self.s, fr.addressee_id).set_emergency(fr.requester_id, True)
         self.s.commit()
-        self.s.refresh(fr)
-        return fr
 
+        return fr
+    def _delete_emergency_contact(self, owner_id: int, target_id: int):
+            ec = self.s.exec(
+                select(EmergencyContact).where(
+                    (EmergencyContact.user_id == owner_id) &
+                    (EmergencyContact.target_user_id == target_id)
+                )
+            ).first()
+            if ec:
+                self.s.delete(ec)
+
+    def unfriend(self, friend_user_id: int) -> bool:
+        """양쪽 친구 관계 해제 + 양쪽 비상연락 대상 제거"""
+        fr = self.s.exec(
+            select(FriendRequest).where(
+                (FriendRequest.status == FriendStatus.ACCEPTED) &
+                (
+                    ((FriendRequest.requester_id == self.user_id) & (FriendRequest.addressee_id == friend_user_id)) |
+                    ((FriendRequest.requester_id == friend_user_id) & (FriendRequest.addressee_id == self.user_id))
+                )
+            )
+        ).first()
+        if not fr:
+            raise ValueError("현재 친구 상태가 아닙니다.")
+
+        # 비상연락 대상 양방향 삭제
+        self._delete_emergency_contact(self.user_id, friend_user_id)
+        self._delete_emergency_contact(friend_user_id, self.user_id)
+
+        # 친구 행 삭제
+        self.s.delete(fr)
+        self.s.commit()
+        return True
     def reject(self, request_id: int) -> FriendRequest:
         fr = self.s.get(FriendRequest, request_id)
         if not fr or fr.addressee_id != self.user_id or fr.status != FriendStatus.PENDING:
@@ -137,10 +169,30 @@ class FriendService:
             })
         return out
 
-    def _upsert_contact(self, owner_id: int, target_id: int):
-        exists = self.s.exec(select(EmergencyContact).where(
-            (EmergencyContact.user_id == owner_id) & (EmergencyContact.target_user_id == target_id)
-        )).first()
-        if not exists:
-            ec = EmergencyContact(user_id=owner_id, target_user_id=target_id, relation="친구", is_emergency=False)
-            self.s.add(ec)
+    def list_friends_with_emergency_flag(self) -> List[dict]:
+        rows = self.s.exec(select(FriendRequest).where(
+            (FriendRequest.status == FriendStatus.ACCEPTED) &
+            ((FriendRequest.requester_id == self.user_id) | (FriendRequest.addressee_id == self.user_id))
+        )).all()
+
+        friend_ids = [r.addressee_id if r.requester_id == self.user_id else r.requester_id for r in rows]
+        if not friend_ids:
+            return []
+
+        users = self.s.exec(select(User).where(User.id.in_(friend_ids))).all()
+        emergency_ids = EmergencyContactService(self.s, self.user_id).selected_user_id_set()
+
+        # 비상연락 목록과 동일한 모양(즐겨찾기 없음)
+        return [
+            {
+                "id": u.id,
+                "target_user_id": u.id,
+                "relation": None,
+                "is_emergency": (u.id in emergency_ids),
+                "target_username": u.username,
+                "target_profile_imageURL": u.profile_imageURL,
+            }
+            for u in users
+        ]
+
+    

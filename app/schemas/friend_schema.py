@@ -2,6 +2,10 @@ from typing import Optional
 from pydantic import BaseModel, Field
 from enum import Enum
 
+class FriendEmergencyToggle(BaseModel):
+    is_emergency: bool
+    relation: Optional[str] = None
+
 class FriendRequestCreate(BaseModel):
     username: str = Field(..., description="상대 닉네임(=username)")
 

@@ -3,8 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from app.db.session import get_db_session
 from app.handlers.user_handler import get_current_user
-from app.schemas.friend_schema import FriendRequestCreate, FriendRequestRead
+from app.schemas.friend_schema import FriendRequestCreate, FriendRequestRead,FriendEmergencyToggle
 from app.services.friend_service import FriendService
+from app.services.emergency_contact_service import EmergencyContactService
 
 router = APIRouter(prefix='/friend')
 
@@ -47,7 +48,24 @@ def cancel(request_id: int, s: Session = Depends(get_db_session), user=Depends(g
     except ValueError as e:
         raise HTTPException(400, str(e))
 
-@router.get("")
+@router.get("") 
 def list_friends(s: Session = Depends(get_db_session), user=Depends(get_current_user)):
-    rows = FriendService(s, user.id).list_friends()
-    return [{"id": u.id, "username": u.username, "profile_imageURL": u.profile_imageURL} for u in rows]
+    return FriendService(s, user.id).list_friends_with_emergency_flag()
+
+@router.patch("/{friend_user_id}/emergency", status_code=204)
+def toggle_friend_emergency(friend_user_id: int,
+                            payload: FriendEmergencyToggle,
+                            s: Session = Depends(get_db_session),
+                            user=Depends(get_current_user)):
+    svc = EmergencyContactService(s, user.id)
+    svc.set_emergency(friend_user_id, payload.is_emergency, relation=payload.relation)
+    return
+@router.delete("/{friend_user_id}", status_code=204)
+def unfriend(friend_user_id: int,
+             s: Session = Depends(get_db_session),
+             user=Depends(get_current_user)):
+    try:
+        FriendService(s, user.id).unfriend(friend_user_id)
+    except ValueError as e:
+        raise HTTPException(404, str(e))
+    return

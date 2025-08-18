@@ -12,8 +12,6 @@ class EmergencyContactRead(BaseModel):
     target_user_id: int
     relation: Optional[str] = None
     is_emergency: bool
-    is_favorite: bool
-    # 프론트 편의를 위한 요약 정보(서비스에서 채워줌)
     target_username: Optional[str] = None
     target_profile_imageURL: Optional[str] = None
     class Config:
@@ -21,8 +19,6 @@ class EmergencyContactRead(BaseModel):
 
 class EmergencyContactUpdate(BaseModel):
     relation: Optional[str] = None
-    is_emergency: Optional[bool] = None
-    is_favorite: Optional[bool] = None
 
 # ------- Emergency Broadcast -------
 class EmergencyBroadcastCreate(BaseModel):
