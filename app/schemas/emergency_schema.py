@@ -1,35 +1,28 @@
+# app/schemas/emergency_schema.py
 from typing import Optional, List
-from pydantic import BaseModel, Field
-
-# ------- Emergency Contact -------
-class EmergencyContactCreate(BaseModel):
-    target_user_id: int
-    relation: Optional[str] = None
-    is_emergency: bool = False
+from pydantic import BaseModel, ConfigDict, Field
 
 class EmergencyContactRead(BaseModel):
     id: int
     target_user_id: int
     relation: Optional[str] = None
-    is_emergency: bool
+    is_emergency: bool = True  # 존재 = TRUE (계산값)
     target_username: Optional[str] = None
     target_profile_imageURL: Optional[str] = None
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
-class EmergencyContactUpdate(BaseModel):
-    relation: Optional[str] = None
+class EmergencyContactUpsert(BaseModel):
+    relation: Optional[str] = Field(default=None, description="표시용 메모(가족/친구 등)")
 
-# ------- Emergency Broadcast -------
 class EmergencyBroadcastCreate(BaseModel):
-    message: str = Field(example="긴급 상황입니다. 연락 부탁합니다.")
+    message: str = Field(..., example="긴급 상황입니다. 연락 부탁합니다.")
     include_location: bool = True
-    contact_ids: Optional[List[int]] = None  # 없으면 is_emergency=True 대상 전체
+    contact_ids: Optional[List[int]] = None  # 지정 없으면 전체(등록된 비상연락 대상)
     lat: Optional[float] = None
     lon: Optional[float] = None
     address: Optional[str] = None
 
 class EmergencyBroadcastRead(BaseModel):
     id: int
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+

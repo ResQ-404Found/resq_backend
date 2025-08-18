@@ -5,7 +5,7 @@ from app.db.session import get_db_session
 from app.handlers.user_handler import get_current_user
 from app.schemas.friend_schema import FriendRequestCreate, FriendRequestRead,FriendEmergencyToggle
 from app.services.friend_service import FriendService
-from app.services.emergency_contact_service import EmergencyContactService
+from app.services.emergency_service import EmergencyService 
 
 router = APIRouter(prefix='/friend')
 
@@ -52,14 +52,16 @@ def cancel(request_id: int, s: Session = Depends(get_db_session), user=Depends(g
 def list_friends(s: Session = Depends(get_db_session), user=Depends(get_current_user)):
     return FriendService(s, user.id).list_friends_with_emergency_flag()
 
+from app.services.emergency_service import EmergencyService  # 추가
+
 @router.patch("/{friend_user_id}/emergency", status_code=204)
 def toggle_friend_emergency(friend_user_id: int,
                             payload: FriendEmergencyToggle,
                             s: Session = Depends(get_db_session),
                             user=Depends(get_current_user)):
-    svc = EmergencyContactService(s, user.id)
-    svc.set_emergency(friend_user_id, payload.is_emergency, relation=payload.relation)
+    EmergencyService(s, user.id).set_contact(friend_user_id, payload.is_emergency, relation=payload.relation)
     return
+
 @router.delete("/{friend_user_id}", status_code=204)
 def unfriend(friend_user_id: int,
              s: Session = Depends(get_db_session),

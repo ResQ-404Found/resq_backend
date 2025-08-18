@@ -21,17 +21,14 @@ from app.services.hospital_service import fetch_and_store_hospitals
 from app.handlers import news_handler
 from app.handlers import youtube_handler
 from app.handlers import purchase_handler
-from app.handlers import emergency_broadcast_handler
-from app.handlers import emergency_contact_handler
 from app.handlers import friend_handler
+from app.handlers import emergency_handler
 
 app = FastAPI()
 scheduler = BackgroundScheduler()
 
-# Add routers
-app.include_router(emergency_contact_handler.router, prefix="/api", tags= ["Contact"])
+app.include_router(emergency_handler.router, prefix="/api", tags=["Emergency"])
 app.include_router(friend_handler.router, prefix="/api", tags= ["Friend"])
-app.include_router(emergency_broadcast_handler.router, prefix="/api", tags= ["broadcast"])
 app.include_router(youtube_handler.router, prefix="/api", tags= ["youtube"])
 app.include_router(news_handler.router, prefix="/api", tags= ["news"])
 app.include_router(hospital_handler.router, prefix="/api", tags=["hospital"])

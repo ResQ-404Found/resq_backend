@@ -8,8 +8,8 @@ class EmergencyContact(SQLModel, table=True):
     __table_args__ = (UniqueConstraint("user_id", "target_user_id",
                                        name="uq_emergency_contact_owner_target"),)
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id", index=True)        # 나
-    target_user_id: int = Field(foreign_key="user.id", index=True) # 친구
+    user_id: int = Field(foreign_key="user.id", index=True)        # 소유자(나)
+    target_user_id: int = Field(foreign_key="user.id", index=True) # 대상(친구)
     relation: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -36,8 +36,8 @@ class EmergencyBroadcastRecipient(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     broadcast_id: int = Field(foreign_key="emergency_broadcast.id", index=True)
     contact_id: int = Field(foreign_key="emergency_contact.id", index=True)
-    channel: str = "push"
-    status: str = "queued"  # queued/sent/failed
+    channel: str = "push"                # push만 사용
+    status: str = "queued"               # queued/sent/failed
     provider_message_id: Optional[str] = None
     error: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
