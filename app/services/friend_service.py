@@ -5,7 +5,7 @@ from sqlmodel import Session, select
 from app.models.user_model import User
 from app.models.friend_model import FriendRequest, FriendStatus
 from app.models.emergency_model import EmergencyContact as EmergencyContactModel  # 모델은 별칭으로
-from app.services.emergency_service import EmergencyService  # 비상연락 서비스
+from app.services.emergency_service import EmergencyService # 비상연락 서비스
 
 class FriendService:
     def __init__(self, s: Session, user_id: int):
