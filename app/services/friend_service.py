@@ -1,8 +1,8 @@
 from typing import List, Iterable, Dict
 from datetime import datetime
 from sqlmodel import Session, select
-
-from app.models.user_model import User
+from sqlalchemy import Column, Integer, ForeignKey 
+from app.models.user_model import User,UserStatus
 from app.models.friend_model import FriendRequest, FriendStatus
 from app.models.emergency_model import EmergencyContact as EmergencyContactModel  # 모델은 별칭으로
 from app.services.emergency_service import EmergencyService # 비상연락 서비스
@@ -17,6 +17,7 @@ class FriendService:
         q = (select(User)
              .where(User.username.ilike(f"%{username}%"))
              .where(User.id != self.user_id)
+              .where(User.status == UserStatus.ACTIVE)
              .limit(limit))
         return self.s.exec(q).all()
 
