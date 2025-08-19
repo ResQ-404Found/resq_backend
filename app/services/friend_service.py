@@ -15,6 +15,7 @@ class FriendService:
     # 닉네임 검색
     def search_users(self, username: str, limit: int = 10) -> List[User]:
         q = (select(User)
+
              .where(User.username.ilike(f"%{username}%"))
              .where(User.id != self.user_id)
               .where(User.status == UserStatus.ACTIVE)
