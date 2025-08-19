@@ -31,7 +31,7 @@ async def create_db_and_tables():
             status="active"
         )
         session.add(dummy_user)
-         # ← 새 테스트 유저 추가
+        # ← 새 테스트 유저 추가
         tester = User(
             login_id="test",
             email="tester01@example.com",

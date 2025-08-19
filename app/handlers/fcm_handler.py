@@ -19,6 +19,12 @@ def update_fcm_token(
     fcm_service.update_user_fcm_token(user,req.fcm_token)
     return ApiResponse(message="FCM 토큰이 성공적으로 등록되었습니다.")
 
+@router.get("/users/fcm-token")
+def get_fcm_token(
+    user: User=Depends(get_current_user),
+):
+    return user.fcm_token
+
 @router.post("/test/send-my-fcm")
 async def send_my_fcm(
     request: FCMTestRequest,
