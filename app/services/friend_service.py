@@ -15,9 +15,9 @@ class FriendService:
     # 닉네임 검색
     def search_users(self, username: str, limit: int = 10) -> List[User]:
         q = (select(User)
-             .where(User.username.ilike(f"%{username}%"))
-             .where(User.id != self.user_id)
-             .limit(limit))
+                .where(User.username.ilike(f"%{username}%"))
+                .where(User.id != self.user_id)
+                .limit(limit))
         return self.s.exec(q).all()
 
     # 친구 요청 보내기

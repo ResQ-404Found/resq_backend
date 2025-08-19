@@ -99,68 +99,81 @@ project-root/
 │   │   ├── comment_handler.py
 │   │   ├── disaster_handler.py
 │   │   ├── email_handler.py
+│   │   ├── emergency_handler.py
 │   │   ├── fcm_handler.py
+│   │   ├── friend_handler.py
+│   │   ├── hospital_handler.py
 │   │   ├── like_handler.py
+│   │   ├── news_handler.py
 │   │   ├── notification_disastertype_handler.py
 │   │   ├── notification_handler.py
 │   │   ├── notification_region_handler.py
 │   │   ├── post_handler.py
+│   │   ├── purchase_handler.py
 │   │   ├── shelter_handler.py
 │   │   ├── sponsor_handler.py
-│   │   ├── hospital_handler.py
-│   │   ├── youtube_handler.py
-│   │   └── user_handler.py
+│   │   ├── user_handler.py
+│   │   └── youtube_handler.py
 │   ├── models/
 │   │   ├── chatbot_model.py
 │   │   ├── comment_model.py
 │   │   ├── disaster_model.py
 │   │   ├── disaster_region_model.py
+│   │   ├── emergency_model.py
+│   │   ├── friend_model.py
+│   │   ├── hospital_model.py
 │   │   ├── like_model.py
+│   │   ├── news_model.py
 │   │   ├── notification_model.py
 │   │   ├── post_model.py
+│   │   ├── purchase_model.py
 │   │   ├── region_model.py
 │   │   ├── shelter_model.py
 │   │   ├── sponsor_model.py
-│   │   ├── hospital_model.py
-│   │   ├── news_model.py
-│   │   ├── youtube_model.py
-│   │   └── user_model.py           
+│   │   ├── user_model.py
+│   │   └── youtube_model.py           
 │   ├── schemas/
 │   │   ├── chatbot_schema.py
 │   │   ├── comment_schema.py
 │   │   ├── common_schema.py
 │   │   ├── disaster_schema.py
 │   │   ├── email_schema.py
+│   │   ├── emergency_schema.py
+│   │   ├── friend_schema.py
+│   │   ├── hospital_schema.py
 │   │   ├── like_schema.py
+│   │   ├── news_schema.py
 │   │   ├── notification_disastertype_schema.py
 │   │   ├── notification_region_schema.py
 │   │   ├── notification_schema.py
 │   │   ├── post_schema.py
+│   │   ├── purchase_schema.py
 │   │   ├── shelter_schema.py
 │   │   ├── sponsor_schema.py
-│   │   ├── hospital_schema.py
-│   │   ├── news_schema.py
-│   │   ├── youtube_schema.py
-│   │   └── user_schema.py          
+│   │   ├── user_schema.py
+│   │   └── youtube_schema.py          
 │   ├── services/
 │   │   ├── chatbot_service.py
 │   │   ├── comment_service.py
 │   │   ├── disaster_region_service.py
 │   │   ├── disaster_service.py
 │   │   ├── email_service.py 
+│   │   ├── emergency_service.py 
 │   │   ├── fcm_service.py 
+│   │   ├── friend_service.py 
+│   │   ├── hospital_service.py
 │   │   ├── like_service.py 
+│   │   ├── news_service.py
 │   │   ├── notification_disastertype_service.py 
 │   │   ├── notification_region_service.py 
 │   │   ├── notification_service.py 
 │   │   ├── post_service.py
+│   │   ├── purchase_service.py
 │   │   ├── region_service.py
 │   │   ├── shelter_service.py
 │   │   ├── sponsor_service.py
-│   │   ├── hospital_service.py
-│   │   ├── news_service.py
-│   │   ├── youtube_service.py
-│   │   └── user_service.py   
+│   │   ├── user_service.py
+│   │   └── youtube_service.py   
 │   └── utils/
 │       ├── fcm_util.py
 │       ├── jwt_util.py
@@ -183,4 +196,5 @@ project-root/
 - v4.4 Youtube API limit 추가, Post Delete Error Fix
 - v4.5 CommentRead에 Author 필드 추가
 - v4.6 Post 세부사항 수정(region id, comment count, sort)
+- v5.0 비상 연락망/비상 알림 및 친구 기능 추가
 ```
