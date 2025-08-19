@@ -1,4 +1,4 @@
-### 2025-Spring-Project-Backend
+# ResQ
 ### team 404Found
 
 ### 개발환경 설치
