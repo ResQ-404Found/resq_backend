@@ -114,6 +114,7 @@ project-root/
 │   │   ├── notification_region_handler.py
 │   │   ├── post_handler.py
 │   │   ├── purchase_handler.py
+│   │   ├── quiz_handler.py
 │   │   ├── shelter_handler.py
 │   │   ├── sponsor_handler.py
 │   │   ├── user_handler.py
@@ -131,6 +132,7 @@ project-root/
 │   │   ├── notification_model.py
 │   │   ├── post_model.py
 │   │   ├── purchase_model.py
+│   │   ├── quiz_model.py
 │   │   ├── region_model.py
 │   │   ├── shelter_model.py
 │   │   ├── sponsor_model.py
@@ -163,6 +165,7 @@ project-root/
 │   │   ├── notification_schema.py
 │   │   ├── post_schema.py
 │   │   ├── purchase_schema.py
+│   │   ├── quiz_schema.py
 │   │   ├── shelter_schema.py
 │   │   ├── sponsor_schema.py
 │   │   ├── user_schema.py
@@ -184,6 +187,7 @@ project-root/
 │   │   ├── notification_service.py 
 │   │   ├── post_service.py
 │   │   ├── purchase_service.py
+│   │   ├── quiz_service.py
 │   │   ├── region_service.py
 │   │   ├── shelter_service.py
 │   │   ├── sponsor_service.py
@@ -212,4 +216,5 @@ project-root/
 - v4.5 CommentRead에 Author 필드 추가
 - v4.6 Post 세부사항 수정(region id, comment count, sort)
 - v5.0 비상 연락망/비상 알림 및 친구 기능 추가
+- v6.0 챗봇 기능 개선 (RAG), 심리상담 기능 챗봇 추가, AI 퀴즈 추가, 재난정보 타지역 오류 수정 
 ```
