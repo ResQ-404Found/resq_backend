@@ -2,7 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
-from app.rag.vectorstore import build_vectorstore
+from app.rag.disaster.vectorstore import build_vectorstore
 import os
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -32,7 +32,6 @@ prompt = ChatPromptTemplate.from_template("""
 - 이름: (시설명)
 - 주소: (도로명 주소)
 - 유형: (대피소 유형명)
-- 위도/경도: (위도, 경도)
 
 재난 상황 관련 질문:
 [재난 상황]

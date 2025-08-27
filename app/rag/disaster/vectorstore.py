@@ -3,7 +3,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from app.rag.loader import (
+from app.rag.disaster.loader import (
     load_shelters_as_docs,
     load_hospitals_with_hours_as_docs,
     load_disasters_as_docs,
