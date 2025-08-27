@@ -2,7 +2,7 @@ from sched import scheduler
 from fastapi import FastAPI
 from app.core.firebase import init_firebase
 from app.db.init_db import create_db_and_tables
-from app.handlers import fcm_handler, notification_disastertype_handler, notification_handler, notification_region_handler, sponsor_handler, user_handler, email_handler
+from app.handlers import fcm_handler, notification_disastertype_handler, notification_handler, notification_region_handler, quiz_handler, sponsor_handler, user_handler, email_handler
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.core.redis import get_redis
 from redis.asyncio import Redis
@@ -23,6 +23,7 @@ from app.handlers import youtube_handler
 from app.handlers import purchase_handler
 from app.handlers import friend_handler
 from app.handlers import emergency_handler
+from app.handlers import quiz_handler
 
 app = FastAPI()
 scheduler = BackgroundScheduler()
@@ -46,6 +47,7 @@ app.include_router(notification_disastertype_handler.router, prefix="/api", tags
 app.include_router(notification_handler.router, prefix="/api", tags=["notification"])
 app.include_router(sponsor_handler.router, prefix="/api", tags=["sponsor"])
 app.include_router(purchase_handler.router,prefix='/api',tags =["purchase"])
+app.include_router(quiz_handler.router,prefix='/api',tags =["quiz"])
 @scheduler.scheduled_job("interval", hours=1)
 def scheduled_disaster_fetch():
     fetch_and_store_disasters()
