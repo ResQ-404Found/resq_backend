@@ -12,3 +12,5 @@ venv/
 .env.*
 
 secrets/
+
+chroma_db
