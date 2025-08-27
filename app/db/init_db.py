@@ -37,7 +37,7 @@ async def create_db_and_tables():
             email="tester01@example.com",
             password=pwd_context.hash("test"),
             username="test",       # 닉네임(검색에 사용할 username)
-            role=UserRole.ADMIN,
+            role=UserRole.USER,
             profile_imageURL=None,
             status="active"
             # fcm_token=None  # 필요 시 세팅

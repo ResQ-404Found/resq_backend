@@ -24,10 +24,11 @@ from app.handlers import purchase_handler
 from app.handlers import friend_handler
 from app.handlers import emergency_handler
 from app.handlers import quiz_handler
-
+from app.handlers import shelter_user_handler, shelter_admin_handler
 app = FastAPI()
 scheduler = BackgroundScheduler()
-
+app.include_router(shelter_user_handler.router, tags=["user shelter"])
+app.include_router(shelter_admin_handler.router, tags=["admin shelter"])
 app.include_router(emergency_handler.router, prefix="/api", tags=["Emergency"])
 app.include_router(friend_handler.router, prefix="/api", tags= ["Friend"])
 app.include_router(youtube_handler.router, prefix="/api", tags= ["youtube"])

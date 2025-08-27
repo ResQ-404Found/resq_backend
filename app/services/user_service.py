@@ -26,7 +26,7 @@ class UserService:
         self._exception_if_duplicate("email", req.email)
         self._exception_if_duplicate("username", req.username)
         user = self._save(req)
-        return JWTUtil.generate_token_pair(user.id)
+        return JWTUtil.generate_token_pair(user)
     
     def login(self, req: UserLogin) -> TokenPair:
         user = self.db.exec(
@@ -37,7 +37,7 @@ class UserService:
             raise HTTPException(400, detail="존재하지 않는 사용자입니다.")
         if not self._verify_password(req.password, user.password):
             raise HTTPException(400, detail="비밀번호가 틀립니다.")
-        return JWTUtil.generate_token_pair(user.id)
+        return JWTUtil.generate_token_pair(user)
     
     def get_user_by_id(self, user_id: int) -> User:
         user = self.db.exec(select(User).where(User.id == user_id, User.status == UserStatus.ACTIVE)).first()
