@@ -25,6 +25,8 @@ pip install apscheduler
 pip install openai
 pip install langchain
 pip install langchain-openai
+pip install langchain-community
+pip install chromadb
 pip install firebase_admin
 pip install bs4
 pip install google-api-python-client
@@ -131,7 +133,12 @@ project-root/
 │   │   ├── shelter_model.py
 │   │   ├── sponsor_model.py
 │   │   ├── user_model.py
-│   │   └── youtube_model.py           
+│   │   └── youtube_model.py 
+│   ├── rag/
+│   │   ├── chains.py
+│   │   ├── loader.py
+│   │   ├── service.py
+│   │   └── vectorstore.py           
 │   ├── schemas/
 │   │   ├── chatbot_schema.py
 │   │   ├── comment_schema.py
