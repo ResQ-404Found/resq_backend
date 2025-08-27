@@ -32,6 +32,7 @@ pip install bs4
 pip install google-api-python-client
 pip install google-auth-httplib2
 pip install google-auth-oauthlib
+pip install pypdf
 ```
 
 ### .env file 
@@ -84,6 +85,7 @@ project-root/
 │       └── deploy.yml
 │
 ├── data/
+│   ├── counseling_manual.pdf
 │   └── RegionCategory.csv
 │
 ├── secrets/
@@ -135,10 +137,16 @@ project-root/
 │   │   ├── user_model.py
 │   │   └── youtube_model.py 
 │   ├── rag/
-│   │   ├── chains.py
-│   │   ├── loader.py
-│   │   ├── service.py
-│   │   └── vectorstore.py           
+│   │   ├── disaster/
+│   │   │   ├── chains.py
+│   │   │   ├── loader.py
+│   │   │   ├── service.py
+│   │   │   └── vectorstore.py      
+│   │   └── counseling/
+│   │       ├── chains.py
+│   │       ├── loader.py
+│   │       ├── service.py
+│   │       └── vectorstore.py        
 │   ├── schemas/
 │   │   ├── chatbot_schema.py
 │   │   ├── comment_schema.py

@@ -14,3 +14,4 @@ venv/
 secrets/
 
 chroma_db
+counseling_db
