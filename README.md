@@ -86,7 +86,12 @@ project-root/
 │
 ├── data/
 │   ├── counseling_manual.pdf
-│   └── RegionCategory.csv
+│   ├── RegionCategory.csv
+│   ├── shelters_rank_admin_all.csv
+│   ├── shelters_rank_user_all.csv
+│   ├── 민방위대피소.dbf
+│   ├── 민방위대피소.shp
+│   └── 민방위대피소.shx
 │
 ├── secrets/
 │   └── firebase_service_account.json
@@ -115,6 +120,8 @@ project-root/
 │   │   ├── post_handler.py
 │   │   ├── purchase_handler.py
 │   │   ├── quiz_handler.py
+│   │   ├── shelter_csv_admin_handler.py
+│   │   ├── shelter_csv_user_handler.py
 │   │   ├── shelter_handler.py
 │   │   ├── sponsor_handler.py
 │   │   ├── user_handler.py
@@ -166,10 +173,13 @@ project-root/
 │   │   ├── post_schema.py
 │   │   ├── purchase_schema.py
 │   │   ├── quiz_schema.py
+│   │   ├── shelter_csv_schema.py
 │   │   ├── shelter_schema.py
 │   │   ├── sponsor_schema.py
 │   │   ├── user_schema.py
-│   │   └── youtube_schema.py          
+│   │   └── youtube_schema.py   
+│   ├── scripts/
+│   │   └── ingest_civil_defense_shp.py
 │   ├── services/
 │   │   ├── chatbot_service.py
 │   │   ├── comment_service.py
@@ -189,6 +199,8 @@ project-root/
 │   │   ├── purchase_service.py
 │   │   ├── quiz_service.py
 │   │   ├── region_service.py
+│   │   ├── shelter_csv_service.py
+│   │   ├── shelter_rank_service.py
 │   │   ├── shelter_service.py
 │   │   ├── sponsor_service.py
 │   │   ├── user_service.py
@@ -217,4 +229,5 @@ project-root/
 - v4.6 Post 세부사항 수정(region id, comment count, sort)
 - v5.0 비상 연락망/비상 알림 및 친구 기능 추가
 - v6.0 챗봇 기능 개선 (RAG), 심리상담 기능 챗봇 추가, AI 퀴즈 추가, 재난정보 타지역 오류 수정 
+- v6.1 대피소 데이터 분석 및 혼잡도 예측 추가, 챗봇 프롬프트 개선
 ```
