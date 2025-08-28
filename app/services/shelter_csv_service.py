@@ -28,19 +28,7 @@ def _safe_read_csv(path: str) -> pd.DataFrame:
             last_err = e
     raise RuntimeError(f"CSV 읽기 실패: {path} (마지막 오류: {last_err})")
 
-def _ensure_coord_columns(df: pd.DataFrame) -> pd.DataFrame:
-    has_latlon = "lat" in df.columns and "lon" in df.columns
-    has_latitude = "latitude" in df.columns and "longitude" in df.columns
-    if not (has_latlon or has_latitude):
-        raise ValueError("CSV에 좌표 컬럼이 없습니다. (필요: (latitude, longitude) 또는 (lat, lon))")
-    return df
-
 def _assign_row_ids(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    원본 CSV의 '행 순서' 기준으로 id 부여 (1부터 시작).
-    - reset_index(drop=True)로 고정 인덱스 확보 후 index+1을 id로 사용
-    - 이후 정렬/필터링을 해도 id는 컬럼에 유지됨
-    """
     df = df.reset_index(drop=True).copy()
     df["id"] = df.index + 1
     return df
@@ -60,6 +48,39 @@ def _pick_first(d: Dict[str, Any], *keys, default=None):
             return d[k]
     return default
 
+def _normalize_coord_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    다양한 좌표 컬럼명을 latitude/longitude로 정규화하고 숫자화.
+    좌표 없는 행은 제거.
+    """
+    df = df.copy()
+
+    lat_candidates = ["latitude", "lat", "LAT", "Y", "위도"]
+    lon_candidates = ["longitude", "lon", "LOT", "X", "경도"]
+
+    def first_existing(cands):
+        for c in cands:
+            if c in df.columns:
+                return c
+        return None
+
+    lat_col = first_existing(lat_candidates)
+    lon_col = first_existing(lon_candidates)
+
+    if not lat_col or not lon_col:
+        raise ValueError(
+            "CSV에 좌표 컬럼이 없습니다. (허용 후보: "
+            "latitude/longitude, lat/lon, LAT/LOT, X/Y, 경도/위도)"
+        )
+
+    # 새 표준 컬럼으로 복사
+    df["latitude"] = pd.to_numeric(df[lat_col], errors="coerce")
+    df["longitude"] = pd.to_numeric(df[lon_col], errors="coerce")
+
+    # 유효 좌표만 남김
+    df = df.dropna(subset=["latitude", "longitude"]).copy()
+    return df
+
 def _row_to_payload(row: pd.Series) -> Dict[str, Any]:
     r = row.to_dict()
 
@@ -71,8 +92,8 @@ def _row_to_payload(row: pd.Series) -> Dict[str, Any]:
     shelter_type_name = _pick_first(r, "shelter_type_name", "type_name")
     shelter_type_code = _pick_first(r, "shelter_type_code", "type_code")
 
-    latitude  = _to_float(_pick_first(r, "latitude", "lat"))
-    longitude = _to_float(_pick_first(r, "longitude", "lon"))
+    latitude  = _to_float(_pick_first(r, "latitude", "lat", "LAT"))
+    longitude = _to_float(_pick_first(r, "longitude", "lon", "LOT"))
 
     return {
         "id": rid,
@@ -100,24 +121,16 @@ def _row_to_payload(row: pd.Series) -> Dict[str, Any]:
 # ----------------------------
 def get_nearby_from_csv(path: str, lat: float, lon: float, limit: int = 20) -> List[ShelterCSVResponse]:
     df = _safe_read_csv(path)
-    df = _ensure_coord_columns(df)
-    df = _assign_row_ids(df)  # ← 행 기반 id 생성
+    df = _assign_row_ids(df)          # 행 기반 id 생성
+    df = _normalize_coord_columns(df) # 좌표 컬럼 정규화(+숫자화, 결측 제거)
 
-    # 거리 계산에 사용할 좌표 컬럼 결정
-    if "latitude" in df.columns and "longitude" in df.columns:
-        src_lat_col, src_lon_col = "latitude", "longitude"
-    else:
-        src_lat_col, src_lon_col = "lat", "lon"
+    # 거리 계산
+    df["distance_km"] = df.apply(
+        lambda r: _haversine_km(lat, lon, float(r["latitude"]), float(r["longitude"])),
+        axis=1
+    )
 
-    def _dist(row):
-        rlat = _to_float(row[src_lat_col])
-        rlon = _to_float(row[src_lon_col])
-        if rlat is None or rlon is None:
-            return float("inf")
-        return _haversine_km(lat, lon, rlat, rlon)
-
-    df["distance_km"] = df.apply(_dist, axis=1)
-
+    # 가까운 순 정렬 → head(limit)
     df = df.sort_values("distance_km", ascending=True)
     if limit is not None:
         df = df.head(limit)
@@ -129,16 +142,22 @@ def get_nearby_from_csv(path: str, lat: float, lon: float, limit: int = 20) -> L
         results.append(ShelterCSVResponse(**payload))
     return results
 
-def get_shelter_by_id_from_csv(path: str, shelter_id: str) -> Optional[ShelterCSVResponse]:
+def get_shelter_by_id_from_csv(
+    path: str, 
+    shelter_id: str, 
+    base_lat: Optional[float] = None, 
+    base_lon: Optional[float] = None
+) -> Optional[ShelterCSVResponse]:
     """
     행 기반 자동 id(1..N)로 상세 조회.
-    - CSV를 다시 로드하고 동일 규칙으로 id 생성 → 해당 id와 일치하는 행 반환
+    base_lat/lon이 주어지면 distance_km 계산해서 포함.
     """
     df = _safe_read_csv(path)
     if df is None or df.empty:
         return None
 
-    df = _assign_row_ids(df)  # 동일 규칙으로 id 부여
+    df = _assign_row_ids(df)
+
     try:
         target_id = int(str(shelter_id).strip())
     except ValueError:
@@ -148,4 +167,14 @@ def get_shelter_by_id_from_csv(path: str, shelter_id: str) -> Optional[ShelterCS
     if hit.empty:
         return None
 
-    return ShelterCSVResponse(**_row_to_payload(hit.iloc[0]))
+    row = hit.iloc[0]
+    payload = _row_to_payload(row)
+
+    # 좌표 있고, 기준 좌표도 들어오면 거리 계산
+    if base_lat is not None and base_lon is not None:
+        lat = _to_float(payload.get("latitude"))
+        lon = _to_float(payload.get("longitude"))
+        if lat is not None and lon is not None:
+            payload["distance_km"] = _haversine_km(base_lat, base_lon, lat, lon)
+
+    return ShelterCSVResponse(**payload)

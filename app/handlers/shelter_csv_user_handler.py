@@ -1,3 +1,4 @@
+# app/handlers/shelter_csv_handler.py
 import os
 from fastapi import APIRouter, Query, HTTPException
 from typing import List
@@ -14,13 +15,12 @@ def get_nearby_shelters_csv(
     longitude: float = Query(...),
     limit: int = Query(20, ge=1, le=500),
 ):
-    shelters = get_nearby_from_csv(
+    return get_nearby_from_csv(
+        path=DEFAULT_USER_CSV,
         lat=latitude,
         lon=longitude,
         limit=limit,
-        path=DEFAULT_USER_CSV,
     )
-    return shelters
 
 @router.get("/{shelter_id}", response_model=ShelterCSVResponse)
 def get_shelter_detail_csv(shelter_id: str):
