@@ -1,11 +1,11 @@
 # app/services/shelter_csv_service.py
 import os
-import pandas as pd
 from math import radians, sin, cos, asin, sqrt
-from typing import List, Optional, Dict, Any
-from app.schemas.shelter_csv_schema import ShelterCSVResponse
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
+
 import pandas as pd
+
+from app.schemas.shelter_csv_schema import ShelterCSVResponse
 
 USER_CSV = os.getenv("SHELTER_USER_ALL_CSV", "./data/shelters_rank_user_all.csv")
 ADMIN_CSV = os.getenv("SHELTER_ADMIN_ALL_CSV", "./data/shelters_rank_admin_all.csv")
@@ -41,6 +41,14 @@ def _to_float(x) -> Optional[float]:
         if v != v:  # NaN
             return None
         return v
+    except Exception:
+        return None
+
+def _to_int(x) -> Optional[int]:
+    try:
+        if pd.isna(x):
+            return None
+        return int(float(x))
     except Exception:
         return None
 
@@ -100,29 +108,21 @@ def _str_or_empty(x) -> str:
         return ""
     return str(x).strip()
 
-def _to_int(x) -> Optional[int]:
-    try:
-        if _is_nan(x): 
-            return None
-        return int(float(x))
-    except Exception:
-        return None
-
 def _row_to_payload(row: pd.Series) -> Dict[str, Any]:
     r = row.to_dict()
+    rid = r.get("id")
 
-    rid = r.get("id")  # 행기반 id
-
-    # 문자열 후보들에서 고르기
     facility_name = _str_or_empty(_pick_first(r, "facility_name", "name", "REARE_NM", "MGC_NM"))
     road_address  = _str_or_none(_pick_first(r, "road_address", "address"))
     shelter_type_name = _str_or_none(_pick_first(r, "shelter_type_name", "type_name"))
 
-    # 코드/숫자 변환
     shelter_type_code = _to_int(_pick_first(r, "shelter_type_code", "type_code"))
 
     latitude  = _to_float(_pick_first(r, "latitude", "lat", "LAT"))
     longitude = _to_float(_pick_first(r, "longitude", "lon", "LOT"))
+
+    # ▼ 여기 추가: 다양한 컬럼명에서 priority 수치 뽑기
+    priority_val = _to_float(_pick_first(r, "priority", "PRIORITY", "admin_priority"))
 
     return {
         "id": rid,
@@ -130,25 +130,64 @@ def _row_to_payload(row: pd.Series) -> Dict[str, Any]:
         "HCODE": _to_int(r.get("HCODE")),
         "SIGUNGU": _str_or_none(r.get("SIGUNGU")),
         "EUPMYEON": _str_or_none(r.get("EUPMYEON")),
-        "facility_name": facility_name,          # 필수 필드 → 빈문자열 허용
-        "road_address": road_address,            # Optional[str]
-        "shelter_type_name": shelter_type_name,  # Optional[str]
-        "shelter_type_code": shelter_type_code,  # Optional[int]
+        "facility_name": facility_name,
+        "road_address": road_address,
+        "shelter_type_name": shelter_type_name,
+        "shelter_type_code": shelter_type_code,
         "assigned_pop": _to_float(r.get("assigned_pop")),
         "capacity_est": _to_float(r.get("capacity_est")),
         "p_elderly": _to_float(r.get("p_elderly")),
         "p_child": _to_float(r.get("p_child")),
         "vuln": _to_float(r.get("vuln")),
+
+        # ▼ 숫자 원본 둘 다 포함
         "recommend_score": _to_float(r.get("recommend_score")),
+        "priority": priority_val,
+
         "latitude": latitude,
         "longitude": longitude,
         "distance_km": _to_float(r.get("distance_km")),
     }
 
 # ----------------------------
+# 등급(Grade) 계산 유틸 (분위수 기반)
+# ----------------------------
+def _quantile_thresholds(series: pd.Series) -> Tuple[float, float, float, float, float]:
+    """
+    주어진 수치 시리즈에서 (Q25, Q50, Q75, Q90, Q95) 분위수를 반환.
+    결측 제거 후 계산. 값이 없으면 전부 0.0 반환.
+    """
+    s = pd.to_numeric(series, errors="coerce").dropna()
+    if s.empty:
+        return (0.0, 0.0, 0.0, 0.0, 0.0)
+    q25 = float(s.quantile(0.25))
+    q50 = float(s.quantile(0.50))
+    q75 = float(s.quantile(0.75))
+    q90 = float(s.quantile(0.90))
+    q95 = float(s.quantile(0.95))
+    return (q25, q50, q75, q90, q95)
+
+def _grade_by_thresholds(value: Optional[float], q25: float, q50: float, q75: float, q90: float, q95: float) -> Optional[str]:
+    """
+    값과 분위수 컷오프를 받아 A~F 등급으로 변환.
+    """
+    if value is None:
+        return None
+    v = float(value)
+    if v >= q95: return "A"
+    if v >= q90: return "B"
+    if v >= q75: return "C"
+    if v >= q50: return "D"
+    if v >= q25: return "E"
+    return "F"
+
+# ----------------------------
 # 공개 함수
 # ----------------------------
 def get_nearby_from_csv(path: str, lat: float, lon: float, limit: int = 20) -> List[ShelterCSVResponse]:
+    """
+    USER용: 기준 좌표에서 가까운 순으로 반환 + recommend_grade 계산
+    """
     df = _safe_read_csv(path)
     df = _assign_row_ids(df)          # 행 기반 id 생성
     df = _normalize_coord_columns(df) # 좌표 컬럼 정규화(+숫자화, 결측 제거)
@@ -159,6 +198,9 @@ def get_nearby_from_csv(path: str, lat: float, lon: float, limit: int = 20) -> L
         axis=1
     )
 
+    # recommend_score 분위수 계산(등급 컷오프)
+    q25, q50, q75, q90, q95 = _quantile_thresholds(df.get("recommend_score", pd.Series(dtype=float)))
+
     # 가까운 순 정렬 → head(limit)
     df = df.sort_values("distance_km", ascending=True)
     if limit is not None:
@@ -168,6 +210,11 @@ def get_nearby_from_csv(path: str, lat: float, lon: float, limit: int = 20) -> L
     for _, row in df.iterrows():
         payload = _row_to_payload(row)
         payload["distance_km"] = _to_float(row["distance_km"])
+        # USER: recommend_grade 추가
+        payload["recommend_grade"] = _grade_by_thresholds(
+            _to_float(row.get("recommend_score")),
+            q25, q50, q75, q90, q95
+        )
         results.append(ShelterCSVResponse(**payload))
     return results
 
@@ -180,6 +227,7 @@ def get_shelter_by_id_from_csv(
     """
     행 기반 자동 id(1..N)로 상세 조회.
     base_lat/lon이 주어지면 distance_km 계산해서 포함.
+    (상세에서는 등급은 선택적; 필요하면 USER/ADMIN 컨텍스트에서 다시 계산 가능)
     """
     df = _safe_read_csv(path)
     if df is None or df.empty:
@@ -213,8 +261,8 @@ def get_by_priority_from_csv(path: str, limit: int = 20) -> List[ShelterCSVRespo
     ADMIN 전용: 위경도 없이 priority 내림차순으로 상위 limit개 반환.
     - 좌표는 스키마 필수라서 정규화(_normalize_coord_columns)로 숫자화/결측 제거
     - priority 컬럼 후보: ["priority", "PRIORITY", "admin_priority"]
-    - 없거나 숫자 변환 실패 시 가장 낮게 취급
     - distance_km는 계산하지 않음(None)
+    - priority_grade(A~F) 포함
     """
     df = _safe_read_csv(path)
     if df is None or df.empty:
@@ -226,7 +274,7 @@ def get_by_priority_from_csv(path: str, limit: int = 20) -> List[ShelterCSVRespo
     # 좌표 표준화(스키마에 latitude/longitude 필수이므로 없는 행은 제거)
     df = _normalize_coord_columns(df)
 
-    # priority 정규화
+    # priority 후보 고르기 + 정규화
     cand = None
     for c in ("priority", "PRIORITY", "admin_priority"):
         if c in df.columns:
@@ -234,10 +282,12 @@ def get_by_priority_from_csv(path: str, limit: int = 20) -> List[ShelterCSVRespo
             break
 
     if cand is None:
-        # priority가 없으면 전부 동일 우선순위(=0)로 보고 최신 행부터 id 내림차순 정도로 정렬
         df["_priority_norm"] = 0.0
+        q25 = q50 = q75 = q90 = q95 = 0.0
     else:
-        df["_priority_norm"] = pd.to_numeric(df[cand], errors="coerce").fillna(float("-inf"))
+        df["_priority_norm"] = pd.to_numeric(df[cand], errors="coerce")
+        q25, q50, q75, q90, q95 = _quantile_thresholds(df["_priority_norm"])
+        df["_priority_norm"] = df["_priority_norm"].fillna(float("-inf"))
 
     # priority 내림차순, 동점이면 id 오름차순
     df = df.sort_values(by=["_priority_norm", "id"], ascending=[False, True])
@@ -248,8 +298,147 @@ def get_by_priority_from_csv(path: str, limit: int = 20) -> List[ShelterCSVRespo
     results: List[ShelterCSVResponse] = []
     for _, row in df.iterrows():
         payload = _row_to_payload(row)
-        # ADMIN 리스트에서는 거리 계산 안 함
         payload["distance_km"] = None
+        # ADMIN: priority_grade 추가
+        pval = _to_float(row.get(cand)) if cand else None
+        payload["priority_grade"] = _grade_by_thresholds(pval, q25, q50, q75, q90, q95)
         results.append(ShelterCSVResponse(**payload))
 
+    return results
+
+def _build_name_series(df: pd.DataFrame) -> pd.Series:
+    """
+    이름 후보(facility_name, name, REARE_NM, MGC_NM) 중 첫 유효값을 문자열로 반환
+    """
+    cols = [c for c in ["facility_name", "name", "REARE_NM", "MGC_NM"] if c in df.columns]
+    if not cols:
+        return pd.Series([""] * len(df), index=df.index, dtype=object)
+    s = df[cols[0]].astype("string")
+    for c in cols[1:]:
+        s = s.fillna(df[c].astype("string"))
+    return s.fillna("")
+
+def search_by_name_from_csv(
+    path: str,
+    query: str,
+    limit: int = 20,
+    sort_mode: str = "priority",  # "priority" | "name" | "distance" | "priority_grade" | "accuracy"
+    base_lat: Optional[float] = None,
+    base_lon: Optional[float] = None,
+) -> List[ShelterCSVResponse]:
+    """
+    시설명 부분일치 검색.
+    - sort_mode="priority": ADMIN용, priority 내림차순 정렬 (priority_grade 포함)
+    - sort_mode="priority_grade": priority_grade 순서(A~F)로 정렬
+    - sort_mode="accuracy": 이름 정확도 점수순 정렬
+    - sort_mode="name": 이름 사전순 정렬
+    - sort_mode="distance": 기준 좌표 있으면 거리순 (recommend_grade 포함)
+    """
+    df = _safe_read_csv(path)
+    if df is None or df.empty:
+        return []
+
+    df = _assign_row_ids(df)
+    df = _normalize_coord_columns(df)
+
+    # 이름 시리즈
+    name_s = _build_name_series(df)
+    q = (query or "").strip().lower()
+    if not q:
+        return []
+
+    mask = name_s.str.lower().str.contains(q, na=False)
+    df = df[mask].copy()
+    if df.empty:
+        return []
+
+    results: List[ShelterCSVResponse] = []
+
+    # -------------------
+    # 거리순 (USER 스타일)
+    # -------------------
+    if sort_mode == "distance" and base_lat is not None and base_lon is not None:
+        df["distance_km"] = df.apply(
+            lambda r: _haversine_km(base_lat, base_lon, float(r["latitude"]), float(r["longitude"])),
+            axis=1
+        )
+        q25, q50, q75, q90, q95 = _quantile_thresholds(df.get("recommend_score", pd.Series(dtype=float)))
+        df = df.sort_values("distance_km", ascending=True).head(limit)
+
+        for _, row in df.iterrows():
+            payload = _row_to_payload(row)
+            payload["distance_km"] = _to_float(row["distance_km"])
+            payload["recommend_grade"] = _grade_by_thresholds(_to_float(row.get("recommend_score")), q25, q50, q75, q90, q95)
+            results.append(ShelterCSVResponse(**payload))
+        return results
+
+    # -------------------
+    # priority 기준 (ADMIN)
+    # -------------------
+    if sort_mode in ("priority", "priority_grade"):
+        cand = None
+        for c in ("priority", "PRIORITY", "admin_priority"):
+            if c in df.columns:
+                cand = c
+                break
+
+        if cand is None:
+            df["_priority_norm"] = 0.0
+            q25 = q50 = q75 = q90 = q95 = 0.0
+        else:
+            df["_priority_norm"] = pd.to_numeric(df[cand], errors="coerce")
+            q25, q50, q75, q90, q95 = _quantile_thresholds(df["_priority_norm"])
+            df["_priority_norm"] = df["_priority_norm"].fillna(float("-inf"))
+
+        # priority_grade 미리 계산
+        df["priority_grade"] = df[cand].apply(lambda v: _grade_by_thresholds(_to_float(v), q25, q50, q75, q90, q95))
+
+        if sort_mode == "priority":
+            df = df.sort_values(by=["_priority_norm", "id"], ascending=[False, True])
+        else:  # priority_grade 순 정렬 (A~F)
+            grade_order = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, None: 6}
+            df["_grade_order"] = df["priority_grade"].map(grade_order)
+            df = df.sort_values(by=["_grade_order", "id"], ascending=[True, True])
+
+        df = df.head(limit)
+
+        for _, row in df.iterrows():
+            payload = _row_to_payload(row)
+            payload["distance_km"] = None
+            payload["priority_grade"] = row.get("priority_grade")
+            results.append(ShelterCSVResponse(**payload))
+        return results
+
+    # -------------------
+    # 이름 정확도
+    # -------------------
+    if sort_mode == "accuracy":
+        def score_fn(name: str) -> int:
+            n = (name or "").lower()
+            if n == q:
+                return 3
+            if n.startswith(q):
+                return 2
+            if q in n:
+                return 1
+            return 0
+        df["_acc_score"] = name_s.apply(score_fn)
+        df = df.sort_values(by=["_acc_score", "id"], ascending=[False, True]).head(limit)
+
+        for _, row in df.iterrows():
+            payload = _row_to_payload(row)
+            payload["distance_km"] = None
+            results.append(ShelterCSVResponse(**payload))
+        return results
+
+    # -------------------
+    # 이름 사전순
+    # -------------------
+    df["_name_key"] = name_s.str.lower()
+    df = df.sort_values("_name_key", ascending=True).head(limit)
+
+    for _, row in df.iterrows():
+        payload = _row_to_payload(row)
+        payload["distance_km"] = None
+        results.append(ShelterCSVResponse(**payload))
     return results
