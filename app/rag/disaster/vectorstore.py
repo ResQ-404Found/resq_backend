@@ -12,40 +12,38 @@ from app.rag.disaster.loader import (
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 embeddings = OpenAIEmbeddings(
-    model="text-embedding-3-small",   # 필요시 "text-embedding-3-large"로 교체 가능
+    model="text-embedding-3-small",
     api_key=OPENAI_API_KEY
 )
 
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500,     # 문서 크기에 따라 300~800 정도 조정 가능
+    chunk_size=500,
     chunk_overlap=100
 )
 
-def build_vectorstore(persist_dir: str = "./chroma_db"):
-    # 1. DB → Document 불러오기
-    docs = []
-    docs.extend(load_shelters_as_docs())
-    docs.extend(load_hospitals_with_hours_as_docs())
-    docs.extend(load_disasters_as_docs())
+def build_vectorstore():
+    shelters = load_shelters_as_docs()
+    print(f"[Loader] 대피소 문서 개수: {len(shelters)}")
 
-    # 2. 문서 chunking 적용
+    hospitals = load_hospitals_with_hours_as_docs()
+    print(f"[Loader] 병원 문서 개수: {len(hospitals)}")
+
+    disasters = load_disasters_as_docs()
+    print(f"[Loader] 재난 문서 개수: {len(disasters)}")
+
+    docs = shelters + hospitals + disasters
+    print(f"[Vectorstore] 원본 문서 총 개수: {len(docs)}")
+
     splits = text_splitter.split_documents(docs)
+    print(f"[Vectorstore] 청크된 문서 총 개수: {len(splits)}")
 
-    # 3. 기존 VectorStore 불러오기 (있으면 재사용)
-    if os.path.exists(persist_dir):
-        vectorstore = Chroma(
-            embedding_function=embeddings,
-            persist_directory=persist_dir
-        )
-    else:
-        # 4. 새로 생성할 경우, 배치 단위로 추가
-        vectorstore = Chroma(
-            embedding_function=embeddings,
-            persist_directory=persist_dir
-        )
-        for i in range(0, len(splits), 100):   # 100개씩 잘라서 추가
-            batch = splits[i:i+100]
-            vectorstore.add_documents(batch)
-        vectorstore.persist()  # 디스크에 저장
+    vectorstore = Chroma.from_documents(
+        documents=splits,
+        embedding=embeddings,
+        persist_directory=None
+    )
+
+    print("[Vectorstore] in-memory 생성 완료")
+    print(f"[Vectorstore] 최종 문서 개수: {len(splits)}")
 
     return vectorstore

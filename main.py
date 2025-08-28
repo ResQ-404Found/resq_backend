@@ -8,6 +8,7 @@ from app.core.redis import get_redis
 from redis.asyncio import Redis
 from app.handlers import shelter_handler
 from app.handlers import disaster_handler
+from app.rag.disaster.vectorstore import build_vectorstore
 from app.services.region_service import load_region_csv
 from app.services.shelter_service import fetch_and_store_shelters
 from app.services.disaster_service import fetch_and_store_disasters
@@ -74,6 +75,8 @@ async def on_startup():
     await run_in_threadpool(fetch_and_store_hospitals)
     scheduler.start()
     print("[APScheduler] Started!")
+
+    build_vectorstore()
 
 
 @app.on_event("shutdown")

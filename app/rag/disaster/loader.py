@@ -6,7 +6,6 @@ from app.models.hospital_model import Hospital, HospitalOperatingHour
 from app.models.shelter_models import Shelter
 
 
-# 🏠 Shelter (10개만 불러오기)
 def load_shelters_as_docs(limit: int = 20):
     with Session(db_engine) as session:
         shelters = session.exec(select(Shelter).limit(limit)).all()
@@ -15,8 +14,7 @@ def load_shelters_as_docs(limit: int = 20):
                 page_content=f"{s.facility_name}, {s.road_address}, 유형: {s.shelter_type_name}",
                 metadata={
                     "id": s.id,
-                    "latitude": s.latitude,
-                    "longitude": s.longitude,
+                    "category": "shelter", 
                     "shelter_type_code": s.shelter_type_code,
                     "management_serial_number": s.management_serial_number
                 }
@@ -25,7 +23,6 @@ def load_shelters_as_docs(limit: int = 20):
         ]
 
 
-# 🏥 Hospital + HospitalOperatingHour (10개만 불러오기)
 def load_hospitals_with_hours_as_docs(limit: int = 20):
     with Session(db_engine) as session:
         hospitals = session.exec(select(Hospital).limit(limit)).all()
@@ -53,6 +50,7 @@ def load_hospitals_with_hours_as_docs(limit: int = 20):
                     ),
                     metadata={
                         "id": h.id,
+                        "category": "hospital",
                         "latitude": h.latitude,
                         "longitude": h.longitude,
                         "phone_number": h.phone_number,
@@ -64,7 +62,6 @@ def load_hospitals_with_hours_as_docs(limit: int = 20):
         return docs
 
 
-# 🚨 DisasterInfo (10개만 불러오기, active=True만)
 def load_disasters_as_docs(limit: int = 20):
     with Session(db_engine) as session:
         disasters = session.exec(
@@ -74,14 +71,15 @@ def load_disasters_as_docs(limit: int = 20):
             Document(
                 page_content=f"[{d.disaster_type} - {d.disaster_level}] {d.info}",
                 metadata={
-                    "id": d.id,
+                    "id": str(d.id),
+                    "category": "disaster",
                     "type": d.disaster_type,
                     "level": d.disaster_level,
                     "region": d.region_name,
-                    "start_time": d.start_time,
-                    "end_time": d.end_time,
-                    "updated_at": d.updated_at,
-                    "active": d.active
+                    "start_time": str(d.start_time) if d.start_time else None,
+                    "end_time": str(d.end_time) if d.end_time else None,
+                    "updated_at": str(d.updated_at) if d.updated_at else None,
+                    "active": bool(d.active)
                 }
             )
             for d in disasters
