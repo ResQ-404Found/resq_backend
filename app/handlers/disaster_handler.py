@@ -34,30 +34,47 @@ def get_disasters(
         if sido or sigungu or eupmyeondong:
             region_query = session.query(Region)
             if sido and not sigungu and not eupmyeondong:
-                region_query = region_query.filter(Region.sido == sido)
+                region_query = region_query.filter(Region.sido.like(f"%{sido}%"))
             elif sido and sigungu and not eupmyeondong:
                 region_query = region_query.filter(
-                    Region.sido == sido,
-                    Region.sigungu == sigungu
+                    Region.sido.like(f"%{sido}%"),
+                    Region.sigungu.like(f"%{sigungu}%")
                 )
             elif sido and sigungu and eupmyeondong:
                 region_query = region_query.filter(
-                    Region.sido == sido,
-                    Region.sigungu == sigungu,
-                    Region.eupmyeondong == eupmyeondong
+                    Region.sido.like(f"%{sido}%"),
+                    Region.sigungu.like(f"%{sigungu}%"),
+                    Region.eupmyeondong.like(f"%{eupmyeondong}%")
                 )
-
             regions = region_query.all()
-            if regions:
-                region_ids = [region.id for region in regions]
-                disaster_ids = session.query(DisasterRegion.disaster_id).filter(
-                    DisasterRegion.region_id.in_(region_ids)
-                ).all()
-                disaster_ids = [d[0] for d in disaster_ids]
-                query = query.filter(DisasterInfo.id.in_(disaster_ids))
+
+            if not regions:
+                # 지역 검색 결과 없음 → 빈 리스트 반환
+                return {
+                    "message": "조건에 맞는 재난정보가 없습니다.",
+                    "data": [{"summary": {}, "disasters": []}]
+                }
+            
+            region_ids = [region.id for region in regions]
+            disaster_ids = session.query(DisasterRegion.disaster_id).filter(
+                DisasterRegion.region_id.in_(region_ids)
+            ).all()
+            disaster_ids = [d[0] for d in disaster_ids]
+            if not disaster_ids:
+                # 해당 지역에 연결된 재난 없음
+                return {
+                    "message": "조건에 맞는 재난정보가 없습니다.",
+                    "data": [{"summary": {}, "disasters": []}]
+                }
+            query = query.filter(DisasterInfo.id.in_(disaster_ids))
         
         disasters = query.order_by(DisasterInfo.start_time.desc()).all()
         
+        if not disasters:
+            return {
+                "message": "조건에 맞는 재난정보가 없습니다.",
+                "data": [{"summary": {}, "disasters": []}]
+            }
         # 요약 정보 생성
         summary = {}
         for disaster in disasters:
