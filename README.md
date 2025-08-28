@@ -88,10 +88,7 @@ project-root/
 │   ├── counseling_manual.pdf
 │   ├── RegionCategory.csv
 │   ├── shelters_rank_admin_all.csv
-│   ├── shelters_rank_user_all.csv
-│   ├── 민방위대피소.dbf
-│   ├── 민방위대피소.shp
-│   └── 민방위대피소.shx
+│   └── shelters_rank_user_all.csv
 │
 ├── secrets/
 │   └── firebase_service_account.json
@@ -178,8 +175,6 @@ project-root/
 │   │   ├── sponsor_schema.py
 │   │   ├── user_schema.py
 │   │   └── youtube_schema.py   
-│   ├── scripts/
-│   │   └── ingest_civil_defense_shp.py
 │   ├── services/
 │   │   ├── chatbot_service.py
 │   │   ├── comment_service.py
