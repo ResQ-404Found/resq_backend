@@ -1,7 +1,7 @@
 import os
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from typing import List
-from app.services.shelter_csv_service import get_nearby_from_csv
+from app.services.shelter_csv_service import get_nearby_from_csv, get_shelter_by_id_from_csv
 from app.schemas.shelter_csv_schema import ShelterCSVResponse
 
 router = APIRouter(prefix="/shelters/csv", tags=["Shelter - CSV"])
@@ -18,6 +18,13 @@ def get_nearby_shelters_csv(
         lat=latitude,
         lon=longitude,
         limit=limit,
-        path=DEFAULT_USER_CSV,  # ← 여기서 명시적으로 전달
+        path=DEFAULT_USER_CSV,
     )
     return shelters
+
+@router.get("/{shelter_id}", response_model=ShelterCSVResponse)
+def get_shelter_detail_csv(shelter_id: str):
+    row = get_shelter_by_id_from_csv(DEFAULT_USER_CSV, shelter_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Shelter not found")
+    return row

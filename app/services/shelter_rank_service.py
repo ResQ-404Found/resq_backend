@@ -54,14 +54,15 @@ def _norm_num(x):
 
 def _row_to_payload(row: pd.Series) -> dict:
     return {
+        "id":              row.get("id"),
         "source":          row.get("source"),
         "HCODE":           row.get("HCODE"),
         "SIGUNGU":         row.get("SIGUNGU"),
         "EUPMYEON":        row.get("EUPMYEON"),
-        "name":            row.get("name") or row.get("REARE_NM") or row.get("MGC_NM"),
-        "address":         row.get("address"),
-        "type_name":       row.get("type_name"),
-        "type_code":       row.get("type_code"),
+        "facility_name":   row.get("name") or row.get("REARE_NM") or row.get("MGC_NM"),
+        "road_address":    row.get("address"),
+        "shelter_type_name": row.get("type_name"),
+        "shelter_type_code": row.get("type_code"),
         "assigned_pop":    _norm_num(row.get("assigned_pop")),
         "capacity_est":    _norm_num(row.get("capacity_est")),
         "p_elderly":       _norm_num(row.get("p_elderly")),
@@ -70,9 +71,10 @@ def _row_to_payload(row: pd.Series) -> dict:
         "pressure":        _norm_num(row.get("pressure")),
         "recommend_score": _norm_num(row.get("recommend_score")),
         "priority":        _norm_num(row.get("priority")),
-        "lat":             _norm_num(row.get("lat")),
-        "lon":             _norm_num(row.get("lon")),
+        "latitude":        _norm_num(row.get("lat")),
+        "longitude":       _norm_num(row.get("lon")),
     }
+
 
 def _prep(df: pd.DataFrame, is_user: bool):
     if df is None or df.empty: 
