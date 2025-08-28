@@ -4,6 +4,8 @@ import pandas as pd
 
 USER_ALL_CSV  = os.getenv("SHELTER_USER_ALL_CSV",  "/content/shelters_rank_user_all.csv")
 ADMIN_ALL_CSV = os.getenv("SHELTER_ADMIN_ALL_CSV", "/content/shelters_rank_admin_all.csv")
+MATCH_RADIUS_M = float(os.getenv("SHELTER_NEARBY_MATCH_RADIUS_M", "600"))
+
 
 _LOCK = threading.Lock()
 _LOADED = False
@@ -136,6 +138,9 @@ def ensure_loaded():
         user_df  = _safe_read_csv(USER_ALL_CSV)
         admin_df = _safe_read_csv(ADMIN_ALL_CSV)
         merged = _merge_user_admin(user_df, admin_df)
+        print(f"[RANK] user_rows={0 if user_df is None else len(user_df)}, admin_rows={0 if admin_df is None else len(admin_df)}, merged={len(merged)}")
+        if not merged.empty:
+         print("[RANK] sample columns:", list(merged.columns)[:20])
         if merged is None or merged.empty:
             _LOADED = True
             return
@@ -153,27 +158,29 @@ def _haversine_m(lat1, lon1, lat2, lon2):
     return 2*R*asin(sqrt(a))
 
 def lookup_by_latlon(lat: float, lon: float) -> dict | None:
-    """정확 매칭(소수5) → 실패 시 200m 이내 최근접."""
     ensure_loaded()
     if not _IDX and not _ALL_ROWS:
         return None
 
-    # 1) 라운딩 키로 즉시 조회
-    key = (round(float(lat),5), round(float(lon),5))
-    row = _IDX.get(key)
-    if row:
-        return row
+    lat = float(lat); lon = float(lon)
+    # 1) 점진적 라운딩 키 조회: 5→4→3
+    for d in (5, 4, 3):
+        key = (round(lat, d), round(lon, d))
+        row = _IDX.get(key)
+        if row:
+            return row
 
-    # 2) 근접 탐색 (기본 200m)
-    best = None
-    best_d = 1e18
+
+    # 2) 근접 탐색 (env로 조절되는 반경)
+    best = None; best_d = 1e18
     for (lt, ln), r in zip(_ALL_LATLON, _ALL_ROWS):
         d = _haversine_m(lat, lon, lt, ln)
         if d < best_d:
             best = r; best_d = d
-    if best is not None and best_d <= 200.0:   # 임계값 200m (원하면 조정)
+    if best is not None and best_d <= MATCH_RADIUS_M:
         return best
     return None
+
 
 def grade_user(score: float | None) -> str:
     return _grade_user(score)

@@ -25,8 +25,12 @@ from app.handlers import friend_handler
 from app.handlers import emergency_handler
 from app.handlers import quiz_handler
 from app.handlers import shelter_user_handler, shelter_admin_handler
+from app.handlers import shelter_csv_user_handler, shelter_csv_admin_handler
+
 app = FastAPI()
 scheduler = BackgroundScheduler()
+app.include_router(shelter_csv_user_handler.router)
+app.include_router(shelter_csv_admin_handler.router)
 app.include_router(shelter_user_handler.router, tags=["user shelter"])
 app.include_router(shelter_admin_handler.router, tags=["admin shelter"])
 app.include_router(emergency_handler.router, prefix="/api", tags=["Emergency"])
@@ -62,6 +66,9 @@ def scheduled_hospital_fetch():
     fetch_and_store_hospitals()
 
 # DB setup
+# main.py
+from app.services.shelter_shp_service import load_shelters_from_shp
+
 @app.on_event("startup")
 async def on_startup():
     redis: Redis = await get_redis()
@@ -71,8 +78,11 @@ async def on_startup():
     await run_in_threadpool(fetch_and_store_shelters)
     await run_in_threadpool(fetch_and_store_disasters)
     await run_in_threadpool(fetch_and_store_hospitals)
+    count = await run_in_threadpool(load_shelters_from_shp)
+    print(f"[SHP] Inserted from SHP: {count}")
     scheduler.start()
     print("[APScheduler] Started!")
+
 
 @app.on_event("shutdown")
 def shutdown_event():
