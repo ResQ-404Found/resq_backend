@@ -7,7 +7,7 @@ from app.models.shelter_models import Shelter
 
 
 # 🏠 Shelter (10개만 불러오기)
-def load_shelters_as_docs(limit: int = 10):
+def load_shelters_as_docs(limit: int = 20):
     with Session(db_engine) as session:
         shelters = session.exec(select(Shelter).limit(limit)).all()
         return [
@@ -26,7 +26,7 @@ def load_shelters_as_docs(limit: int = 10):
 
 
 # 🏥 Hospital + HospitalOperatingHour (10개만 불러오기)
-def load_hospitals_with_hours_as_docs(limit: int = 10):
+def load_hospitals_with_hours_as_docs(limit: int = 20):
     with Session(db_engine) as session:
         hospitals = session.exec(select(Hospital).limit(limit)).all()
         docs = []
@@ -65,7 +65,7 @@ def load_hospitals_with_hours_as_docs(limit: int = 10):
 
 
 # 🚨 DisasterInfo (10개만 불러오기, active=True만)
-def load_disasters_as_docs(limit: int = 10):
+def load_disasters_as_docs(limit: int = 20):
     with Session(db_engine) as session:
         disasters = session.exec(
             select(DisasterInfo).where(DisasterInfo.active == True).limit(limit)
