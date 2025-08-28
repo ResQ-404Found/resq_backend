@@ -24,10 +24,12 @@ from app.handlers import purchase_handler
 from app.handlers import friend_handler
 from app.handlers import emergency_handler
 from app.handlers import quiz_handler
+from app.handlers import shelter_csv_user_handler, shelter_csv_admin_handler
 
 app = FastAPI()
 scheduler = BackgroundScheduler()
-
+app.include_router(shelter_csv_user_handler.router)
+app.include_router(shelter_csv_admin_handler.router)
 app.include_router(emergency_handler.router, prefix="/api", tags=["Emergency"])
 app.include_router(friend_handler.router, prefix="/api", tags= ["Friend"])
 app.include_router(youtube_handler.router, prefix="/api", tags= ["youtube"])
@@ -60,7 +62,7 @@ def scheduled_shelter_fetch():
 def scheduled_hospital_fetch():
     fetch_and_store_hospitals()
 
-# DB setup
+
 @app.on_event("startup")
 async def on_startup():
     redis: Redis = await get_redis()
@@ -72,6 +74,7 @@ async def on_startup():
     await run_in_threadpool(fetch_and_store_hospitals)
     scheduler.start()
     print("[APScheduler] Started!")
+
 
 @app.on_event("shutdown")
 def shutdown_event():
