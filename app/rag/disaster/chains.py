@@ -26,8 +26,7 @@ prompt = ChatPromptTemplate.from_template("""
 
 ---
 
-카테고리별 답변 규칙:
-
+카테고리별 답변 규칙(해당내용은 답변에 포함하지 마세요):
 [hospital]
 - context에 병원 정보 있으면 병원명, 주소, 전화번호, 응급실 유무, 주말진료 여부, 운영시간 요약.
 - 없으면 "119 연락, 응급실 24시간, 지역 보건소" 같은 일반 안내 제공.
@@ -97,7 +96,7 @@ prompt = ChatPromptTemplate.from_template("""
 질문: {input}
 """)
 
-llm = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo-0125", temperature=0)
+llm = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4o-mini", temperature=0)
 
 vectorstore = build_vectorstore()
 retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
