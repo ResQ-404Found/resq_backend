@@ -4,6 +4,8 @@ import pandas as pd
 from math import radians, sin, cos, asin, sqrt
 from typing import List, Optional, Dict, Any
 from app.schemas.shelter_csv_schema import ShelterCSVResponse
+from typing import List, Optional, Dict, Any
+import pandas as pd
 
 USER_CSV = os.getenv("SHELTER_USER_ALL_CSV", "./data/shelters_rank_user_all.csv")
 ADMIN_CSV = os.getenv("SHELTER_ADMIN_ALL_CSV", "./data/shelters_rank_admin_all.csv")
@@ -81,30 +83,57 @@ def _normalize_coord_columns(df: pd.DataFrame) -> pd.DataFrame:
     df = df.dropna(subset=["latitude", "longitude"]).copy()
     return df
 
+def _is_nan(x) -> bool:
+    try:
+        return pd.isna(x)
+    except Exception:
+        return False
+
+def _str_or_none(x) -> Optional[str]:
+    if x is None or _is_nan(x):
+        return None
+    s = str(x).strip()
+    return s if s != "" else None
+
+def _str_or_empty(x) -> str:
+    if x is None or _is_nan(x):
+        return ""
+    return str(x).strip()
+
+def _to_int(x) -> Optional[int]:
+    try:
+        if _is_nan(x): 
+            return None
+        return int(float(x))
+    except Exception:
+        return None
+
 def _row_to_payload(row: pd.Series) -> Dict[str, Any]:
     r = row.to_dict()
 
-    # id는 우리가 행기반으로 생성한 값을 그대로 사용
-    rid = r.get("id")
+    rid = r.get("id")  # 행기반 id
 
-    facility_name = _pick_first(r, "facility_name", "name", "REARE_NM", "MGC_NM", default="")
-    road_address  = _pick_first(r, "road_address", "address")
-    shelter_type_name = _pick_first(r, "shelter_type_name", "type_name")
-    shelter_type_code = _pick_first(r, "shelter_type_code", "type_code")
+    # 문자열 후보들에서 고르기
+    facility_name = _str_or_empty(_pick_first(r, "facility_name", "name", "REARE_NM", "MGC_NM"))
+    road_address  = _str_or_none(_pick_first(r, "road_address", "address"))
+    shelter_type_name = _str_or_none(_pick_first(r, "shelter_type_name", "type_name"))
+
+    # 코드/숫자 변환
+    shelter_type_code = _to_int(_pick_first(r, "shelter_type_code", "type_code"))
 
     latitude  = _to_float(_pick_first(r, "latitude", "lat", "LAT"))
     longitude = _to_float(_pick_first(r, "longitude", "lon", "LOT"))
 
     return {
         "id": rid,
-        "source": r.get("source"),
-        "HCODE": _to_float(r.get("HCODE")),
-        "SIGUNGU": r.get("SIGUNGU"),
-        "EUPMYEON": r.get("EUPMYEON"),
-        "facility_name": facility_name,
-        "road_address": road_address,
-        "shelter_type_name": shelter_type_name,
-        "shelter_type_code": _to_float(shelter_type_code) if shelter_type_code is not None else None,
+        "source": _str_or_none(r.get("source")),
+        "HCODE": _to_int(r.get("HCODE")),
+        "SIGUNGU": _str_or_none(r.get("SIGUNGU")),
+        "EUPMYEON": _str_or_none(r.get("EUPMYEON")),
+        "facility_name": facility_name,          # 필수 필드 → 빈문자열 허용
+        "road_address": road_address,            # Optional[str]
+        "shelter_type_name": shelter_type_name,  # Optional[str]
+        "shelter_type_code": shelter_type_code,  # Optional[int]
         "assigned_pop": _to_float(r.get("assigned_pop")),
         "capacity_est": _to_float(r.get("capacity_est")),
         "p_elderly": _to_float(r.get("p_elderly")),
@@ -178,3 +207,49 @@ def get_shelter_by_id_from_csv(
             payload["distance_km"] = _haversine_km(base_lat, base_lon, lat, lon)
 
     return ShelterCSVResponse(**payload)
+
+def get_by_priority_from_csv(path: str, limit: int = 20) -> List[ShelterCSVResponse]:
+    """
+    ADMIN 전용: 위경도 없이 priority 내림차순으로 상위 limit개 반환.
+    - 좌표는 스키마 필수라서 정규화(_normalize_coord_columns)로 숫자화/결측 제거
+    - priority 컬럼 후보: ["priority", "PRIORITY", "admin_priority"]
+    - 없거나 숫자 변환 실패 시 가장 낮게 취급
+    - distance_km는 계산하지 않음(None)
+    """
+    df = _safe_read_csv(path)
+    if df is None or df.empty:
+        return []
+
+    # 행 기반 id 부여
+    df = _assign_row_ids(df)
+
+    # 좌표 표준화(스키마에 latitude/longitude 필수이므로 없는 행은 제거)
+    df = _normalize_coord_columns(df)
+
+    # priority 정규화
+    cand = None
+    for c in ("priority", "PRIORITY", "admin_priority"):
+        if c in df.columns:
+            cand = c
+            break
+
+    if cand is None:
+        # priority가 없으면 전부 동일 우선순위(=0)로 보고 최신 행부터 id 내림차순 정도로 정렬
+        df["_priority_norm"] = 0.0
+    else:
+        df["_priority_norm"] = pd.to_numeric(df[cand], errors="coerce").fillna(float("-inf"))
+
+    # priority 내림차순, 동점이면 id 오름차순
+    df = df.sort_values(by=["_priority_norm", "id"], ascending=[False, True])
+
+    if limit is not None:
+        df = df.head(limit)
+
+    results: List[ShelterCSVResponse] = []
+    for _, row in df.iterrows():
+        payload = _row_to_payload(row)
+        # ADMIN 리스트에서는 거리 계산 안 함
+        payload["distance_km"] = None
+        results.append(ShelterCSVResponse(**payload))
+
+    return results
