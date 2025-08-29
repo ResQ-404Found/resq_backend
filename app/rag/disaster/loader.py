@@ -6,7 +6,7 @@ from app.models.hospital_model import Hospital, HospitalOperatingHour
 from app.models.shelter_models import Shelter
 
 
-def load_shelters_as_docs(limit: int = 20):
+def load_shelters_as_docs(limit: int = 100):
     with Session(db_engine) as session:
         shelters = session.exec(select(Shelter).limit(limit)).all()
         return [
@@ -23,7 +23,7 @@ def load_shelters_as_docs(limit: int = 20):
         ]
 
 
-def load_hospitals_with_hours_as_docs(limit: int = 20):
+def load_hospitals_with_hours_as_docs(limit: int = 100):
     with Session(db_engine) as session:
         hospitals = session.exec(select(Hospital).limit(limit)).all()
         docs = []
@@ -62,7 +62,7 @@ def load_hospitals_with_hours_as_docs(limit: int = 20):
         return docs
 
 
-def load_disasters_as_docs(limit: int = 20):
+def load_disasters_as_docs(limit: int = 100):
     with Session(db_engine) as session:
         disasters = session.exec(
             select(DisasterInfo).where(DisasterInfo.active == True).limit(limit)
