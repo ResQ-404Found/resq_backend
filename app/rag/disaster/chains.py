@@ -3,22 +3,14 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
-from app.rag.disaster.vectorstore import build_vectorstore
+
+# ✅ 여기서는 build_vectorstore 호출 안함
+# main.py 에서 vectorstore 주입받도록 설계
+vectorstore = None  
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-vectorstore = build_vectorstore()
-
-hospital_retriever = vectorstore.as_retriever(
-   search_kwargs={"k": 3, "filter": {"category": "hospital"}}
-)
-shelter_retriever = vectorstore.as_retriever(
-   search_kwargs={"k": 3, "filter": {"category": "shelter"}}
-)
-disaster_retriever = vectorstore.as_retriever(
-   search_kwargs={"k": 3, "filter": {"category": "disaster"}}
-)
-
+# 카테고리 분류 프롬프트
 category_prompt = ChatPromptTemplate.from_template("""
 당신은 사용자의 질문을 hospital / shelter / disaster / guideline / other 중 하나로 분류합니다.
 출력은 반드시 카테고리 이름 하나만 쓰세요.
@@ -29,10 +21,11 @@ category_prompt = ChatPromptTemplate.from_template("""
 category_llm = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-3.5-turbo", temperature=0)
 
 def classify_question(question: str) -> str:
-   result = category_llm.invoke(category_prompt.format_messages(input=question))
-   return result.content.strip().lower()
+    result = category_llm.invoke(category_prompt.format_messages(input=question))
+    return result.content.strip().lower()
 
 
+# 답변 프롬프트
 answer_prompt = ChatPromptTemplate.from_template("""
 당신은 재난 대응 전문가 챗봇입니다.
 
@@ -79,20 +72,30 @@ context에 있는 정보를 기반으로 답변하세요.
 answer_llm = ChatOpenAI(api_key=OPENAI_API_KEY, model="gpt-4o-mini", temperature=0)
 document_chain = create_stuff_documents_chain(answer_llm, answer_prompt)
 
+
+def init_vectorstore(vs):
+    """main.py에서 vectorstore를 초기화할 때 호출"""
+    global vectorstore
+    vectorstore = vs
+
+
 def rag_answer(question: str):
-   category = classify_question(question)
-   print(f"[DEBUG] 분류된 카테고리: {category}")
+    if vectorstore is None:
+        return {"answer": "⚠️ 벡터스토어가 아직 초기화되지 않았습니다."}
 
-   if category == "hospital":
-      retriever = hospital_retriever
-   elif category == "shelter":
-      retriever = shelter_retriever
-   elif category == "disaster":
-      retriever = disaster_retriever
-   elif category == "guideline":
-      retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
-   else:
-      return {"answer": "저는 재난 대응 전문 챗봇입니다. 해당 주제는 답변해드릴 수 없습니다."}
+    category = classify_question(question)
+    print(f"[DEBUG] 분류된 카테고리: {category}")
 
-   rag_chain = create_retrieval_chain(retriever, document_chain)
-   return rag_chain.invoke({"input": question})
+    if category == "hospital":
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 3, "filter": {"category": "hospital"}})
+    elif category == "shelter":
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 3, "filter": {"category": "shelter"}})
+    elif category == "disaster":
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 3, "filter": {"category": "disaster"}})
+    elif category == "guideline":
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    else:
+        return {"answer": "저는 재난 대응 전문 챗봇입니다. 해당 주제는 답변해드릴 수 없습니다."}
+
+    rag_chain = create_retrieval_chain(retriever, document_chain)
+    return rag_chain.invoke({"input": question})

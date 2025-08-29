@@ -26,9 +26,11 @@ from app.handlers import friend_handler
 from app.handlers import emergency_handler
 from app.handlers import quiz_handler
 from app.handlers import shelter_csv_user_handler, shelter_csv_admin_handler
+from app.handlers import predict_handler
 
 app = FastAPI()
 scheduler = BackgroundScheduler()
+app.include_router(predict_handler.router)
 app.include_router(shelter_csv_user_handler.router)
 app.include_router(shelter_csv_admin_handler.router)
 app.include_router(emergency_handler.router, prefix="/api", tags=["Emergency"])
@@ -75,9 +77,8 @@ async def on_startup():
     await run_in_threadpool(fetch_and_store_hospitals)
     scheduler.start()
     print("[APScheduler] Started!")
-
-    build_vectorstore()
-
+    vs = build_vectorstore()   # ✅ DB 초기화 이후 실행
+    init_vectorstore(vs)       # ✅ chains.py 에 전달
 
 @app.on_event("shutdown")
 def shutdown_event():
