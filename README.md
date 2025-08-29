@@ -57,6 +57,12 @@ pip install pypdf
     NAVER_CLIENT_ID = your_naver_client_id
     NAVER_CLIENT_SECRET = your_naver_client_secret
     YOUTUBE_API_KEY = your_youtube_api_key
+    KAKAO_REST_API_KEY=c51c0c40469752f3a8a7b4bbc606e2f5
+    SHELTER_USER_ALL_CSV=./data/shelters_rank_user_all.csv
+    SHELTER_ADMIN_CSV=./data/shelters_rank_admin_all.csv
+    SHELTER_SHP_PATH=./data/민방위대피소.shp
+    SHELTER_SHP_EPSG=5179
+    SHELTER_NEARBY_MATCH_RADIUS_M=600
 
 ### Redis (Ubuntu,Linux)
     sudo apt install redis redis-tools -y
@@ -226,4 +232,5 @@ project-root/
 - v6.0 챗봇 기능 개선 (RAG), 심리상담 기능 챗봇 추가, AI 퀴즈 추가, 재난정보 타지역 오류 수정 
 - v6.1 대피소 데이터 분석 및 혼잡도 예측 추가, 챗봇 프롬프트 개선
 - v6.2 불필요한 데이터 삭제
+- v6.3 챗봇 프롬프트 개선 및 오류 수정
 ```
