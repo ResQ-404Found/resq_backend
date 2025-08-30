@@ -33,6 +33,11 @@ pip install google-api-python-client
 pip install google-auth-httplib2
 pip install google-auth-oauthlib
 pip install pypdf
+pip install joblib
+pip install scikit-learn
+pip install torch --index-url https://download.pytorch.org/whl/cpu 
+pip install lxml
+
 ```
 
 ### .env file 
