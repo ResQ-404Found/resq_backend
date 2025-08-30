@@ -4,7 +4,7 @@ from fastapi import Depends, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from sqlmodel import select
 from sqlmodel import Session
-
+import numpy as np
 from app.db.session import get_db_session
 from app.models.sponsor_model import Sponsor
 from app.models.user_model import User

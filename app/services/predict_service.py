@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 import torch
 from dotenv import load_dotenv
-
+import numpy as np
 # env 불러오기
 load_dotenv()
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
@@ -54,23 +54,25 @@ def get_weather(date: str, region: str):
     r = requests.get(url, params=params, verify=False)
 
     if r.status_code != 200:
-        return {"TA": 0, "RN_DAY": 0, "WS": 0}
+        return {"TA": np.nan, "RN_DAY": np.nan, "WS": np.nan}
 
     lines = r.text.strip().split("\n")
     for line in lines:
         if line.startswith("#"):
             continue
         parts = line.split()
-        if len(parts) < 15:
+        if len(parts) < 16:
             continue
         try:
             return {
-                "TA": float(parts[9]) if parts[9] not in [" ", "-", ""] else 0.0,     # 기온 (°C)
-                "WS": float(parts[3]) if parts[3] not in [" ", "-", ""] else 0.0,     # 풍속 (m/s)
-                "RN_DAY": float(parts[13]) if parts[13] not in [" ", "-", ""] else 0.0  # 일강수량 (mm)
+                "TA": float(parts[11]) if parts[11] not in ["-9.0", "-99.0", " ", "-", ""] else 0.0,
+                "WS": float(parts[3]) if parts[3] not in ["-9.0", "-99.0", " ", "-", ""] else 0.0,
+                "RN_DAY": float(parts[15]) if parts[15] not in ["-9.0", "-99.0", " ", "-", ""] else 0.0,
             }
+
         except Exception:
             continue
+
     return {"TA": 0, "RN_DAY": 0, "WS": 0}
 
 
